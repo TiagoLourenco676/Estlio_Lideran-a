@@ -960,6 +960,66 @@
             }, 5000);
         }
 
+        // Configurar eventos do formulário - com verificação
+        function setupFormEvents() {
+            const form = document.getElementById('personalDataForm');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    console.log('%c📝 FORMULÁRIO SUBMETIDO - VERSÃO 3.1!', 'color: purple; font-weight: bold;');
+                    
+                    const name = document.getElementById('candidateName').value.trim();
+                    const cpf = document.getElementById('candidateCPF').value;
+                    const position = document.getElementById('jobPosition').value.trim();
+                    
+                    console.log('📊 Dados coletados:', { name, cpf, position });
+                    
+                    if (!name || !cpf || !position) {
+                        showMessage('Por favor, preencha todos os campos.', 'error');
+                        return;
+                    }
+                    
+                    if (!isValidCPF(cpf)) {
+                        showMessage('CPF inválido. Por favor, verifique os dados.', 'error');
+                        return;
+                    }
+                    
+                    candidateData = { name, cpf, position };
+                    
+                    console.log('%c✅ FECHANDO MODAL E MOSTRANDO FORMULÁRIO', 'color: green; font-weight: bold;');
+                    
+                    // Fechar modal e mostrar formulário
+                    document.getElementById('personalDataModal').style.display = 'none';
+                    document.getElementById('formContainer').classList.add('show');
+                    
+                    // Mostrar informações do candidato
+                    document.getElementById('candidateInfo').innerHTML = `
+                        <strong>Candidato:</strong> ${name} | <strong>CPF:</strong> ${cpf} | <strong>Vaga:</strong> ${position}
+                        <br><small style="color: orange;">🚨 VERSÃO 3.1 BUG FIX - FORMULÁRIO CORRIGIDO 🚨</small>
+                    `;
+                    
+                    showMessage('✅ Dados coletados! Complete a avaliação.', 'success');
+                });
+                console.log('✅ Event listener do formulário configurado');
+            } else {
+                console.error('❌ Formulário não encontrado');
+            }
+        }
+
+        // Aplicar máscara em tempo real - com verificação
+        function setupCPFMask() {
+            const cpfField = document.getElementById('candidateCPF');
+            if (cpfField) {
+                cpfField.addEventListener('input', function(e) {
+                    e.target.value = applyCPFMask(e.target.value);
+                });
+                console.log('✅ Máscara CPF configurada');
+            } else {
+                console.error('❌ Campo CPF não encontrado');
+            }
+        }
+
         const styleDescriptions = {
             '1.1': {
                 title: 'Estilo 1.1 - Empobrecido',
