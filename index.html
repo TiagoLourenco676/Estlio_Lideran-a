@@ -886,12 +886,6 @@
                 return;
             }
             
-            // Verificar se Supabase está configurado
-            if (!isSupabaseConfigured) {
-                showMessage('⚠️ Supabase não configurado! O formulário funcionará em modo de demonstração.', 'error');
-                // Continuar mesmo assim para demonstração
-            }
-            
             candidateData = { name, cpf, position };
             
             console.log('Dados salvos:', candidateData); // Debug
@@ -903,7 +897,6 @@
             // Mostrar informações do candidato
             document.getElementById('candidateInfo').innerHTML = `
                 <strong>Candidato:</strong> ${name} | <strong>CPF:</strong> ${cpf} | <strong>Vaga:</strong> ${position}
-                ${!isSupabaseConfigured ? '<br><small style="color: orange;">⚠️ Modo demonstração - Configure o Supabase para salvar dados</small>' : ''}
             `;
             
             showMessage('Dados coletados com sucesso! Agora preencha a avaliação.', 'success');
@@ -1047,11 +1040,8 @@
                 // Exibir resultados
                 displayResults(scores, dominantStyle);
                 
-                if (result.mode === 'demo') {
-                    showMessage('Resultado calculado! (Modo demonstração - Configure o Supabase para salvar no banco)', 'success');
-                } else {
-                    showMessage('Resultado salvo com sucesso no banco de dados!', 'success');
-                }
+                showMessage('Resultado salvo com sucesso no banco de dados!', 'success');
+                
             } catch (error) {
                 console.error('Erro ao salvar:', error);
                 showMessage('Erro ao salvar resultado: ' + error.message, 'error');
@@ -1065,41 +1055,39 @@
         }
 
         async function saveToSupabase(scores, dominantStyle) {
-            // Se Supabase não estiver configurado, simular salvamento
-            if (!isSupabaseConfigured) {
-                console.log('Simulando salvamento:', {
-                    candidate_name: candidateData.name,
-                    candidate_cpf: candidateData.cpf,
-                    job_position: candidateData.position,
-                    scores: scores,
-                    dominant_style: dominantStyle
-                });
-                
-                // Simular delay de rede
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                return { success: true, mode: 'demo' };
+            // Verificar se Supabase está disponível
+            if (!supabase) {
+                throw new Error('Supabase não está configurado corretamente');
             }
+            
+            console.log('Tentando salvar no Supabase...'); // Debug
+            
+            const dataToSave = {
+                candidate_name: candidateData.name,
+                candidate_cpf: candidateData.cpf,
+                job_position: candidateData.position,
+                style_1_1: scores['1.1'],
+                style_1_9: scores['1.9'],
+                style_5_5: scores['5.5'],
+                style_9_1: scores['9.1'],
+                style_9_9: scores['9.9'],
+                dominant_style: dominantStyle,
+                assessment_date: new Date().toISOString(),
+                responses: JSON.stringify(getFormResponses())
+            };
+            
+            console.log('Dados a serem salvos:', dataToSave); // Debug
             
             const { data, error } = await supabase
                 .from('leadership_assessments')
-                .insert([
-                    {
-                        candidate_name: candidateData.name,
-                        candidate_cpf: candidateData.cpf,
-                        job_position: candidateData.position,
-                        style_1_1: scores['1.1'],
-                        style_1_9: scores['1.9'],
-                        style_5_5: scores['5.5'],
-                        style_9_1: scores['9.1'],
-                        style_9_9: scores['9.9'],
-                        dominant_style: dominantStyle,
-                        assessment_date: new Date().toISOString(),
-                        // Salvar também as respostas individuais para auditoria
-                        responses: JSON.stringify(getFormResponses())
-                    }
-                ]);
+                .insert([dataToSave]);
 
-            if (error) throw error;
+            if (error) {
+                console.error('Erro do Supabase:', error); // Debug
+                throw error;
+            }
+            
+            console.log('Dados salvos com sucesso:', data); // Debug
             return data;
         }
 
