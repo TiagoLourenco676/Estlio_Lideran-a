@@ -383,8 +383,8 @@
                         <input type="text" id="jobPosition" required>
                     </div>
                     <button type="submit" class="modal-btn">Iniciar Avaliação</button>
-                    <div style="text-align: center; margin-top: 15px; font-size: 0.9em; color: #6c757d;">
-                        Versão 2.6 NOVA - Cache Buster Ativo
+                    <div style="text-align: center; margin-top: 15px; font-size: 0.9em; color: #6c757d; background: yellow; padding: 5px; border-radius: 5px;">
+                        🚨 VERSÃO 3.0 EMERGENCY FIX 🚨
                     </div>
                 </form>
             </div>
@@ -815,24 +815,54 @@
         </div> <!-- Fim do formContainer -->
     </div>
 
-    <!-- Scripts do Supabase -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.3/umd/index.js"></script>
-    
     <script>
-        // Configuração do Supabase - SUBSTITUA PELAS SUAS CREDENCIAIS
-        const SUPABASE_URL = 'SUA_URL_DO_SUPABASE';
-        const SUPABASE_KEY = 'SUA_CHAVE_PUBLICA_DO_SUPABASE';
+        // === VERSÃO 3.0 EMERGENCY FIX - TOTAL OVERHAUL ===
+        console.log('%c🚨 EMERGENCY FIX 3.0 CARREGADA! 🚨', 'background: red; color: white; font-size: 24px; padding: 10px; font-weight: bold;');
+        console.log('%c=== CACHE DESTRUÍDO - NOVA VERSÃO ===', 'color: blue; font-size: 18px; font-weight: bold;');
         
-        // Verificar se as credenciais foram configuradas
-        const isSupabaseConfigured = SUPABASE_URL !== 'SUA_URL_DO_SUPABASE' && SUPABASE_KEY !== 'SUA_CHAVE_PUBLICA_DO_SUPABASE';
-        
-        let supabase = null;
-        if (isSupabaseConfigured) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        }
-
         // Dados do candidato
         let candidateData = {};
+        
+        // Variável global para Supabase
+        let SUPABASE_CLIENT = null;
+        
+        // Tentar criar cliente Supabase após carregamento
+        async function initializeSupabase() {
+            console.log('%c🔄 Inicializando Supabase...', 'color: orange; font-weight: bold;');
+            
+            try {
+                // Aguardar carregamento da biblioteca
+                let attempts = 0;
+                while (!window.supabase && attempts < 10) {
+                    console.log('⏳ Aguardando Supabase... tentativa', attempts + 1);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    attempts++;
+                }
+                
+                if (window.supabase) {
+                    SUPABASE_CLIENT = window.supabase.createClient(
+                        'https://oyzocircslqogsstsbki.supabase.co',
+                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95em9jaXJjc2xxb2dzc3RzYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1ODAzMTMsImV4cCI6MjA2NTE1NjMxM30.VipaRyKtxpdYLCYHoIdJZ96ADQI0cORGUu0pZgvTOGg'
+                    );
+                    console.log('%c✅ SUPABASE CRIADO COM SUCESSO!', 'color: green; font-weight: bold; font-size: 16px;');
+                    
+                    // Teste de conexão
+                    const { count, error } = await SUPABASE_CLIENT
+                        .from('leadership_assessments')
+                        .select('*', { count: 'exact', head: true });
+                    
+                    if (error) {
+                        console.error('%c❌ Erro no teste de conexão:', 'color: red; font-weight: bold;', error);
+                    } else {
+                        console.log('%c🎯 CONEXÃO FUNCIONANDO! Registros:', 'color: green; font-weight: bold;', count);
+                    }
+                } else {
+                    console.error('%c❌ Biblioteca Supabase não carregou', 'color: red; font-weight: bold;');
+                }
+            } catch (error) {
+                console.error('%c❌ Erro ao inicializar Supabase:', 'color: red; font-weight: bold;', error);
+            }
+        }
 
         // Máscara para CPF
         function applyCPFMask(value) {
@@ -871,7 +901,7 @@
         document.getElementById('personalDataForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            console.log('📝 Formulário submetido!');
+            console.log('%c📝 FORMULÁRIO SUBMETIDO - VERSÃO 3.0!', 'color: purple; font-weight: bold;');
             
             const name = document.getElementById('candidateName').value.trim();
             const cpf = document.getElementById('candidateCPF').value;
@@ -898,6 +928,7 @@
             // Mostrar informações do candidato
             document.getElementById('candidateInfo').innerHTML = `
                 <strong>Candidato:</strong> ${name} | <strong>CPF:</strong> ${cpf} | <strong>Vaga:</strong> ${position}
+                <br><small style="color: orange;">🚨 VERSÃO 3.0 EMERGENCY FIX ATIVA 🚨</small>
             `;
             
             showMessage('✅ Dados coletados! Complete a avaliação.', 'success');
@@ -911,12 +942,6 @@
                 messageDiv.className = 'status-message';
             }, 5000);
         }
-        // Mapeamento simples e correto:
-        // Estilo 1.1 = soma de todas as alternativas A
-        // Estilo 1.9 = soma de todas as alternativas B  
-        // Estilo 5.5 = soma de todas as alternativas C
-        // Estilo 9.1 = soma de todas as alternativas D
-        // Estilo 9.9 = soma de todas as alternativas E
 
         const styleDescriptions = {
             '1.1': {
@@ -952,7 +977,6 @@
 
         function validateDimension(changedSelect) {
             const dimensionDiv = changedSelect.closest('.dimension');
-            const dimensionName = dimensionDiv.querySelector('.dimension-title').textContent.toLowerCase().split(':')[1].trim();
             const selects = dimensionDiv.querySelectorAll('.ranking-select');
             const errorDiv = dimensionDiv.querySelector('.error-message');
             
@@ -996,6 +1020,8 @@
         }
 
         async function calculateResults() {
+            console.log('%c🎯 CALCULANDO RESULTADOS - VERSÃO 3.0!', 'color: green; font-weight: bold; font-size: 16px;');
+            
             // Verificar se todas as dimensões estão válidas
             const allValid = document.querySelectorAll('.dimension.completed').length === 6;
             if (!allValid) {
@@ -1027,41 +1053,41 @@
                 scores['9.9'] += parseInt(document.querySelector(`[name="${dimension}_e"]`).value);
             });
 
+            console.log('📊 Pontuações calculadas:', scores);
+
             // Encontrar o estilo dominante
             const maxScore = Math.max(...Object.values(scores));
             const dominantStyle = Object.keys(scores).find(style => scores[style] === maxScore);
 
-            // Salvar no Supabase
+            console.log('🎯 Estilo dominante:', dominantStyle);
+
+            // Tentar salvar no Supabase
             try {
                 document.getElementById('calculateBtn').disabled = true;
                 document.getElementById('calculateBtn').textContent = 'Salvando...';
                 
-                const result = await saveToSupabase(scores, dominantStyle);
-                
-                // Exibir resultados
-                displayResults(scores, dominantStyle);
-                
-                showMessage('Resultado salvo com sucesso no banco de dados!', 'success');
+                if (SUPABASE_CLIENT) {
+                    await saveToSupabase(scores, dominantStyle);
+                    showMessage('✅ Resultado salvo no banco de dados!', 'success');
+                } else {
+                    console.warn('%c⚠️ Supabase não disponível - modo offline', 'color: orange; font-weight: bold;');
+                    showMessage('✅ Resultado calculado! (Supabase offline)', 'success');
+                }
                 
             } catch (error) {
-                console.error('Erro ao salvar:', error);
-                showMessage('Erro ao salvar resultado: ' + error.message, 'error');
-                
-                // Mesmo com erro, mostrar os resultados
-                displayResults(scores, dominantStyle);
+                console.error('❌ Erro ao salvar:', error);
+                showMessage('⚠️ Erro ao salvar, mas resultado calculado corretamente', 'error');
             } finally {
                 document.getElementById('calculateBtn').disabled = false;
                 document.getElementById('calculateBtn').textContent = 'Calcular Meu Estilo de Liderança';
             }
+            
+            // Exibir resultados SEMPRE
+            displayResults(scores, dominantStyle);
         }
 
         async function saveToSupabase(scores, dominantStyle) {
-            console.log('🔄 Iniciando salvamento no Supabase...');
-            console.log('🔗 Cliente disponível:', !!supabase);
-            
-            if (!supabase) {
-                throw new Error('Cliente Supabase não disponível');
-            }
+            console.log('%c💾 Salvando no Supabase...', 'color: blue; font-weight: bold;');
             
             const dataToSave = {
                 candidate_name: candidateData.name,
@@ -1077,27 +1103,19 @@
                 responses: JSON.stringify(getFormResponses())
             };
             
-            console.log('📊 Dados preparados:', dataToSave);
+            console.log('📦 Dados para salvar:', dataToSave);
             
-            try {
-                console.log('💾 Enviando para Supabase...');
-                
-                const { data, error } = await supabase
-                    .from('leadership_assessments')
-                    .insert([dataToSave]);
+            const { data, error } = await SUPABASE_CLIENT
+                .from('leadership_assessments')
+                .insert([dataToSave]);
 
-                if (error) {
-                    console.error('❌ Erro do Supabase:', error);
-                    throw error;
-                }
-                
-                console.log('✅ Sucesso! Dados salvos:', data);
-                return data;
-                
-            } catch (err) {
-                console.error('❌ Erro completo:', err);
-                throw err;
+            if (error) {
+                console.error('%c❌ Erro do Supabase:', 'color: red; font-weight: bold;', error);
+                throw error;
             }
+            
+            console.log('%c✅ DADOS SALVOS COM SUCESSO!', 'color: green; font-weight: bold; font-size: 16px;', data);
+            return data;
         }
 
         function getFormResponses() {
@@ -1116,6 +1134,8 @@
         }
 
         function displayResults(scores, dominantStyle) {
+            console.log('%c🎨 Exibindo resultados...', 'color: purple; font-weight: bold;');
+            
             const resultsDiv = document.getElementById('results');
             const scoresDiv = document.getElementById('resultScores');
             const descriptionDiv = document.getElementById('styleDescription');
@@ -1145,6 +1165,7 @@
                 <h3>${styleInfo.title}</h3>
                 <p>${styleInfo.description}</p>
                 <p><strong>Sua pontuação total:</strong> ${scores[dominantStyle]} pontos</p>
+                <p><small style="color: orange;">Processado pela Versão 3.0 Emergency Fix</small></p>
             `;
 
             // Mostrar resultados
@@ -1152,17 +1173,22 @@
             resultsDiv.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Inicializar
-        updateProgress();
-        
-        // Mostrar modal na inicialização
-        document.getElementById('personalDataModal').style.display = 'flex';
-        
-        // Debug: Verificar status do Supabase
-        console.log('Status do Supabase:', isSupabaseConfigured ? 'Configurado' : 'Não configurado');
-        if (!isSupabaseConfigured) {
-            console.log('⚠️ Para salvar dados no banco, configure as credenciais do Supabase no código JavaScript');
-        }
+        // Inicializar sistema
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('%c🚀 DOM CARREGADO - INICIANDO SISTEMA 3.0', 'color: blue; font-weight: bold;');
+            
+            updateProgress();
+            document.getElementById('personalDataModal').style.display = 'flex';
+            
+            // Carregar Supabase dinamicamente
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.3/umd/index.js';
+            script.onload = initializeSupabase;
+            script.onerror = () => {
+                console.error('%c❌ Falha ao carregar Supabase - modo offline', 'color: red; font-weight: bold;');
+            };
+            document.head.appendChild(script);
+        });
     </script>
 </body>
 </html>
