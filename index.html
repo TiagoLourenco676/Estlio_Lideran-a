@@ -865,16 +865,16 @@
         }
 
         // Submissão dos dados pessoais
-        document.getElementById('personalDataForm').addEventListener('submit', async function(e) {
+        document.getElementById('personalDataForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            console.log('Formulário submetido!'); // Debug
+            console.log('📝 Formulário submetido!');
             
             const name = document.getElementById('candidateName').value.trim();
             const cpf = document.getElementById('candidateCPF').value;
             const position = document.getElementById('jobPosition').value.trim();
             
-            console.log('Dados:', { name, cpf, position }); // Debug
+            console.log('📊 Dados coletados:', { name, cpf, position });
             
             if (!name || !cpf || !position) {
                 showMessage('Por favor, preencha todos os campos.', 'error');
@@ -888,8 +888,6 @@
             
             candidateData = { name, cpf, position };
             
-            console.log('Dados salvos:', candidateData); // Debug
-            
             // Fechar modal e mostrar formulário
             document.getElementById('personalDataModal').style.display = 'none';
             document.getElementById('formContainer').classList.add('show');
@@ -899,7 +897,7 @@
                 <strong>Candidato:</strong> ${name} | <strong>CPF:</strong> ${cpf} | <strong>Vaga:</strong> ${position}
             `;
             
-            showMessage('Dados coletados com sucesso! Agora preencha a avaliação.', 'success');
+            showMessage('✅ Dados coletados! Complete a avaliação.', 'success');
         });
 
         function showMessage(message, type) {
@@ -1055,7 +1053,12 @@
         }
 
         async function saveToSupabase(scores, dominantStyle) {
-            console.log('🔄 Tentando salvar no Supabase...'); // Debug
+            console.log('🔄 Iniciando salvamento no Supabase...');
+            console.log('🔗 Cliente disponível:', !!supabase);
+            
+            if (!supabase) {
+                throw new Error('Cliente Supabase não disponível');
+            }
             
             const dataToSave = {
                 candidate_name: candidateData.name,
@@ -1071,26 +1074,25 @@
                 responses: JSON.stringify(getFormResponses())
             };
             
-            console.log('📊 Dados a serem salvos:', dataToSave); // Debug
+            console.log('📊 Dados preparados:', dataToSave);
             
             try {
+                console.log('💾 Enviando para Supabase...');
+                
                 const { data, error } = await supabase
                     .from('leadership_assessments')
                     .insert([dataToSave]);
 
                 if (error) {
-                    console.error('❌ Erro detalhado do Supabase:', error); // Debug
-                    console.error('❌ Código do erro:', error.code); // Debug
-                    console.error('❌ Mensagem:', error.message); // Debug
-                    console.error('❌ Detalhes:', error.details); // Debug
+                    console.error('❌ Erro do Supabase:', error);
                     throw error;
                 }
                 
-                console.log('✅ Dados salvos com sucesso no Supabase:', data); // Debug
+                console.log('✅ Sucesso! Dados salvos:', data);
                 return data;
                 
             } catch (err) {
-                console.error('❌ Erro na operação de inserção:', err);
+                console.error('❌ Erro completo:', err);
                 throw err;
             }
         }
