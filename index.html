@@ -992,7 +992,7 @@
 
         function updateProgress() {
             const totalFields = document.querySelectorAll('.ranking-select').length;
-            const filledFields = document.querySelectorAll('.ranking-select[value!=""]').length;
+            const filledFields = Array.from(document.querySelectorAll('.ranking-select')).filter(select => select.value !== '').length;
             const progress = (filledFields / totalFields) * 100;
             document.getElementById('progressFill').style.width = progress + '%';
             
