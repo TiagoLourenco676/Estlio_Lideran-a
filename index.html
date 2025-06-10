@@ -338,19 +338,21 @@
         }
 
         .fix-notice {
-            background: #ff4444;
+            background: #ff0000;
             color: white;
-            padding: 10px;
+            padding: 15px;
             text-align: center;
             font-weight: bold;
             margin: 10px 0;
             border-radius: 5px;
-            animation: blink 2s infinite;
+            animation: pulse 2s infinite;
+            border: 3px solid #fff;
         }
 
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0.7; }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
         }
 
         @media (max-width: 600px) {
@@ -384,7 +386,8 @@
         <div id="personalDataModal" class="modal">
             <div class="modal-content">
                 <div class="fix-notice">
-                    🔧 BOTÃO CORRIGIDO - VERSÃO 3.2 🔧
+                    ⚡ VERSÃO 3.3 ULTRA FORÇA ⚡<br>
+                    BOTÃO COM MÚLTIPLAS CAPTURAS
                 </div>
                 <h2>Dados Pessoais</h2>
                 <p>Para iniciar a avaliação, precisamos de algumas informações:</p>
@@ -401,7 +404,21 @@
                         <label for="jobPosition">Vaga de Emprego:</label>
                         <input type="text" id="jobPosition" required>
                     </div>
-                    <button type="submit" class="modal-btn" id="startBtn">Iniciar Avaliação</button>
+                    
+                    <!-- MÚLTIPLOS BOTÕES PARA FORÇAR FUNCIONAMENTO -->
+                    <button 
+                        type="submit" 
+                        class="modal-btn" 
+                        id="startBtn"
+                        onclick="window.forceFormSubmit(event); return false;"
+                        onmousedown="window.forceFormSubmit(event); return false;"
+                        ontouchstart="window.forceFormSubmit(event); return false;"
+                    >
+                        Iniciar Avaliação
+                    </button>
+                    
+                    <!-- Botão backup invisível -->
+                    <input type="submit" style="display: none;" id="hiddenSubmit">
                 </form>
             </div>
         </div>
@@ -835,8 +852,8 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
     <script>
-        // === VERSÃO 3.2 - BOTÃO CORRIGIDO ===
-        console.log('%c🚨 VERSÃO 3.2 - BOTÃO CORRIGIDO! 🚨', 'background: #ff4444; color: white; font-size: 24px; padding: 10px; font-weight: bold;');
+        // === VERSÃO 3.3 ULTRA FORÇA - FORÇA BRUTA NO BOTÃO ===
+        console.log('%c⚡ VERSÃO 3.3 ULTRA FORÇA CARREGADA! ⚡', 'background: #ff0000; color: white; font-size: 24px; padding: 15px; font-weight: bold; border: 3px solid yellow;');
         
         // CREDENCIAIS SUPABASE
         const SUPABASE_URL = 'https://oyzocircslqogsstsbki.supabase.co';
@@ -845,10 +862,60 @@
         let candidateData = {};
         let SUPABASE_CLIENT = null;
         
+        // === FUNÇÃO PRINCIPAL DE FORÇA BRUTA ===
+        window.forceFormSubmit = function(e) {
+            console.log('%c⚡ FORÇA BRUTA ATIVADA! ⚡', 'background: red; color: white; font-size: 20px; padding: 10px; font-weight: bold;');
+            
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }
+            
+            const name = document.getElementById('candidateName').value.trim();
+            const cpf = document.getElementById('candidateCPF').value;
+            const position = document.getElementById('jobPosition').value.trim();
+            
+            console.log('%c📊 DADOS COLETADOS VIA FORÇA BRUTA:', 'color: blue; font-weight: bold;', { name, cpf, position });
+            
+            // Validações
+            if (!name || !cpf || !position) {
+                alert('❌ Por favor, preencha todos os campos.');
+                return false;
+            }
+            
+            if (!isValidCPF(cpf)) {
+                alert('❌ CPF inválido. Por favor, verifique os dados.');
+                return false;
+            }
+            
+            // Salvar dados
+            candidateData = { name, cpf, position };
+            
+            // Fechar modal e mostrar formulário - FORÇA BRUTA
+            const modal = document.getElementById('personalDataModal');
+            const container = document.getElementById('formContainer');
+            const info = document.getElementById('candidateInfo');
+            
+            if (modal) modal.style.display = 'none';
+            if (container) container.classList.add('show');
+            
+            if (info) {
+                info.innerHTML = `
+                    <strong>Candidato:</strong> ${name} | <strong>CPF:</strong> ${cpf} | <strong>Vaga:</strong> ${position}
+                    <br><small style="color: #ff0000; font-weight: bold;">⚡ VERSÃO 3.3 - FORÇA BRUTA ATIVADA ⚡</small>
+                `;
+            }
+            
+            showMessage('✅ SUCESSO VIA FORÇA BRUTA! Complete a avaliação.', 'success');
+            
+            console.log('%c✅ FORMULÁRIO PROCESSADO VIA FORÇA BRUTA!', 'background: green; color: white; font-size: 16px; padding: 10px; font-weight: bold;');
+            
+            return false;
+        };
+        
         // Inicializar Supabase
         function initializeSupabase() {
-            console.log('%c🔄 Inicializando Supabase...', 'color: orange; font-weight: bold;');
-            
             try {
                 if (window.supabase) {
                     SUPABASE_CLIENT = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -894,53 +961,13 @@
 
         function showMessage(message, type) {
             const messageDiv = document.getElementById('statusMessage');
-            messageDiv.textContent = message;
-            messageDiv.className = `status-message ${type}`;
-            setTimeout(() => {
-                messageDiv.className = 'status-message';
-            }, 5000);
-        }
-
-        // FUNÇÃO PRINCIPAL PARA PROCESSAR O FORMULÁRIO
-        function handleFormSubmission(e) {
-            e.preventDefault();
-            
-            console.log('%c📝 PROCESSANDO FORMULÁRIO...', 'color: blue; font-weight: bold; font-size: 16px;');
-            
-            const name = document.getElementById('candidateName').value.trim();
-            const cpf = document.getElementById('candidateCPF').value;
-            const position = document.getElementById('jobPosition').value.trim();
-            
-            console.log('📊 Dados coletados:', { name, cpf, position });
-            
-            // Validações
-            if (!name || !cpf || !position) {
-                showMessage('❌ Por favor, preencha todos os campos.', 'error');
-                return false;
+            if (messageDiv) {
+                messageDiv.textContent = message;
+                messageDiv.className = `status-message ${type}`;
+                setTimeout(() => {
+                    messageDiv.className = 'status-message';
+                }, 5000);
             }
-            
-            if (!isValidCPF(cpf)) {
-                showMessage('❌ CPF inválido. Por favor, verifique os dados.', 'error');
-                return false;
-            }
-            
-            // Salvar dados
-            candidateData = { name, cpf, position };
-            
-            // Fechar modal e mostrar formulário
-            document.getElementById('personalDataModal').style.display = 'none';
-            document.getElementById('formContainer').classList.add('show');
-            
-            // Mostrar informações do candidato
-            document.getElementById('candidateInfo').innerHTML = `
-                <strong>Candidato:</strong> ${name} | <strong>CPF:</strong> ${cpf} | <strong>Vaga:</strong> ${position}
-                <br><small style="color: #ff4444; font-weight: bold;">🔧 VERSÃO 3.2 - BOTÃO FUNCIONANDO 🔧</small>
-            `;
-            
-            showMessage('✅ Dados coletados! Complete a avaliação.', 'success');
-            
-            console.log('%c✅ FORMULÁRIO PROCESSADO COM SUCESSO!', 'color: green; font-weight: bold; font-size: 16px;');
-            return true;
         }
 
         const styleDescriptions = {
@@ -1012,11 +1039,17 @@
             const totalFields = document.querySelectorAll('.ranking-select').length;
             const filledFields = Array.from(document.querySelectorAll('.ranking-select')).filter(select => select.value !== '').length;
             const progress = (filledFields / totalFields) * 100;
-            document.getElementById('progressFill').style.width = progress + '%';
+            const progressFill = document.getElementById('progressFill');
+            if (progressFill) {
+                progressFill.style.width = progress + '%';
+            }
             
             // Habilitar botão quando tudo estiver preenchido
             const allValid = document.querySelectorAll('.dimension.completed').length === 6;
-            document.getElementById('calculateBtn').disabled = !allValid;
+            const calcBtn = document.getElementById('calculateBtn');
+            if (calcBtn) {
+                calcBtn.disabled = !allValid;
+            }
         }
 
         async function calculateResults() {
@@ -1030,11 +1063,7 @@
             }
 
             const scores = {
-                '1.1': 0, // Soma de todas as alternativas A
-                '1.9': 0, // Soma de todas as alternativas B
-                '5.5': 0, // Soma de todas as alternativas C
-                '9.1': 0, // Soma de todas as alternativas D
-                '9.9': 0  // Soma de todas as alternativas E
+                '1.1': 0, '1.9': 0, '5.5': 0, '9.1': 0, '9.9': 0
             };
 
             // Calcular pontuações
@@ -1048,18 +1077,17 @@
                 scores['9.9'] += parseInt(document.querySelector(`[name="${dimension}_e"]`).value);
             });
 
-            console.log('📊 Pontuações calculadas:', scores);
-
             // Encontrar o estilo dominante
             const maxScore = Math.max(...Object.values(scores));
             const dominantStyle = Object.keys(scores).find(style => scores[style] === maxScore);
 
-            console.log('🎯 Estilo dominante:', dominantStyle);
-
             // Tentar salvar no Supabase
             try {
-                document.getElementById('calculateBtn').disabled = true;
-                document.getElementById('calculateBtn').textContent = 'Salvando...';
+                const calcBtn = document.getElementById('calculateBtn');
+                if (calcBtn) {
+                    calcBtn.disabled = true;
+                    calcBtn.textContent = 'Salvando...';
+                }
                 
                 if (SUPABASE_CLIENT) {
                     await saveToSupabase(scores, dominantStyle);
@@ -1070,8 +1098,11 @@
                 console.error('❌ Erro ao salvar:', error);
                 showMessage('⚠️ Erro ao salvar, mas resultado calculado', 'error');
             } finally {
-                document.getElementById('calculateBtn').disabled = false;
-                document.getElementById('calculateBtn').textContent = 'Calcular Meu Estilo de Liderança';
+                const calcBtn = document.getElementById('calculateBtn');
+                if (calcBtn) {
+                    calcBtn.disabled = false;
+                    calcBtn.textContent = 'Calcular Meu Estilo de Liderança';
+                }
             }
             
             // Exibir resultados
@@ -1079,8 +1110,6 @@
         }
 
         async function saveToSupabase(scores, dominantStyle) {
-            console.log('%c💾 Salvando no Supabase...', 'color: blue; font-weight: bold;');
-            
             const dataToSave = {
                 candidate_name: candidateData.name,
                 candidate_cpf: candidateData.cpf,
@@ -1100,8 +1129,6 @@
                 .insert([dataToSave]);
 
             if (error) throw error;
-            
-            console.log('%c✅ DADOS SALVOS!', 'color: green; font-weight: bold;');
             return data;
         }
 
@@ -1113,7 +1140,8 @@
                 responses[dimension] = {};
                 ['a', 'b', 'c', 'd', 'e'].forEach(option => {
                     const selectName = dimension + '_' + option;
-                    responses[dimension][option] = document.querySelector(`[name="${selectName}"]`).value;
+                    const element = document.querySelector(`[name="${selectName}"]`);
+                    responses[dimension][option] = element ? element.value : '';
                 });
             });
             
@@ -1125,7 +1153,7 @@
             const scoresDiv = document.getElementById('resultScores');
             const descriptionDiv = document.getElementById('styleDescription');
 
-            scoresDiv.innerHTML = '';
+            if (scoresDiv) scoresDiv.innerHTML = '';
 
             // Criar cards de pontuação
             Object.entries(scores).forEach(([style, score]) => {
@@ -1140,25 +1168,29 @@
                     <div class="score-value">${score}</div>
                 `;
 
-                scoresDiv.appendChild(scoreCard);
+                if (scoresDiv) scoresDiv.appendChild(scoreCard);
             });
 
             // Descrição do estilo dominante
             const styleInfo = styleDescriptions[dominantStyle];
-            descriptionDiv.innerHTML = `
-                <h3>${styleInfo.title}</h3>
-                <p>${styleInfo.description}</p>
-                <p><strong>Sua pontuação total:</strong> ${scores[dominantStyle]} pontos</p>
-                <p><small style="color: #ff4444;">Processado pela Versão 3.2 - Botão Corrigido</small></p>
-            `;
+            if (descriptionDiv && styleInfo) {
+                descriptionDiv.innerHTML = `
+                    <h3>${styleInfo.title}</h3>
+                    <p>${styleInfo.description}</p>
+                    <p><strong>Sua pontuação total:</strong> ${scores[dominantStyle]} pontos</p>
+                    <p><small style="color: #ff0000;">⚡ Processado pela Versão 3.3 - Ultra Força ⚡</small></p>
+                `;
+            }
 
-            resultsDiv.classList.add('show');
-            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+            if (resultsDiv) {
+                resultsDiv.classList.add('show');
+                resultsDiv.scrollIntoView({ behavior: 'smooth' });
+            }
         }
 
-        // === INICIALIZAÇÃO DO SISTEMA ===
-        function initializeSystem() {
-            console.log('%c🚀 INICIALIZANDO SISTEMA 3.2', 'color: blue; font-weight: bold; font-size: 18px;');
+        // === SISTEMA DE INICIALIZAÇÃO ULTRA AGRESSIVO ===
+        function ultraAggressiveInit() {
+            console.log('%c⚡ INICIALIZAÇÃO ULTRA AGRESSIVA! ⚡', 'background: red; color: white; font-size: 18px; padding: 10px; font-weight: bold;');
             
             // Configurar máscara CPF
             const cpfField = document.getElementById('candidateCPF');
@@ -1166,32 +1198,41 @@
                 cpfField.addEventListener('input', function(e) {
                     e.target.value = applyCPFMask(e.target.value);
                 });
-                console.log('✅ Máscara CPF configurada');
             }
-
-            // CONFIGURAR EVENT LISTENER DO FORMULÁRIO - VERSÃO CORRIGIDA
+            
+            // MÚLTIPLAS FORMAS DE CAPTURAR O EVENTO DO FORMULÁRIO
             const form = document.getElementById('personalDataForm');
-            if (form) {
-                // Remover listeners antigos se existirem
-                form.removeEventListener('submit', handleFormSubmission);
+            const button = document.getElementById('startBtn');
+            
+            if (form && button) {
+                // Method 1: Event Delegation no documento
+                document.addEventListener('submit', function(e) {
+                    if (e.target && e.target.id === 'personalDataForm') {
+                        console.log('%c📝 CAPTURADO VIA DELEGATION!', 'color: orange; font-weight: bold;');
+                        window.forceFormSubmit(e);
+                    }
+                });
                 
-                // Adicionar novo listener
-                form.addEventListener('submit', handleFormSubmission);
+                // Method 2: Event direto no form
+                form.addEventListener('submit', window.forceFormSubmit);
                 
-                console.log('%c✅ EVENT LISTENER CONFIGURADO COM SUCESSO!', 'color: green; font-weight: bold; font-size: 16px;');
+                // Method 3: Event direto no botão
+                button.addEventListener('click', window.forceFormSubmit);
                 
-                // Teste do botão
-                const submitBtn = document.getElementById('startBtn');
-                if (submitBtn) {
-                    submitBtn.onclick = function(e) {
-                        console.log('%c🔧 BOTÃO CLICADO DIRETAMENTE!', 'color: orange; font-weight: bold;');
-                        e.preventDefault();
-                        handleFormSubmission(e);
-                    };
-                    console.log('✅ Fallback do botão configurado');
-                }
-            } else {
-                console.error('%c❌ FORMULÁRIO NÃO ENCONTRADO!', 'color: red; font-weight: bold;');
+                // Method 4: Keypress no formulário
+                form.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        console.log('%c⌨️ ENTER PRESSIONADO!', 'color: purple; font-weight: bold;');
+                        window.forceFormSubmit(e);
+                    }
+                });
+                
+                // Method 5: Force via timeout (última tentativa)
+                button.addEventListener('mousedown', function(e) {
+                    setTimeout(() => window.forceFormSubmit(e), 100);
+                });
+                
+                console.log('%c✅ TODOS OS EVENT LISTENERS CONFIGURADOS!', 'color: green; font-weight: bold; font-size: 16px;');
             }
             
             updateProgress();
@@ -1201,32 +1242,29 @@
                 initializeSupabase();
             }, 1000);
             
-            console.log('%c✅ SISTEMA 3.2 INICIALIZADO!', 'color: green; font-weight: bold; font-size: 18px;');
+            console.log('%c✅ ULTRA FORÇA INICIALIZADA!', 'background: green; color: white; font-size: 18px; padding: 10px; font-weight: bold;');
         }
 
-        // Garantir inicialização
+        // GARANTIR EXECUÇÃO EM QUALQUER ESTADO DO DOM
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeSystem);
+            document.addEventListener('DOMContentLoaded', ultraAggressiveInit);
         } else {
-            initializeSystem();
+            ultraAggressiveInit();
         }
 
-        // Fallback adicional
-        window.addEventListener('load', function() {
-            // Aguardar um pouco e verificar se tudo está funcionando
-            setTimeout(() => {
-                const form = document.getElementById('personalDataForm');
-                const button = document.getElementById('startBtn');
-                
-                console.log('%c🔍 VERIFICAÇÃO FINAL:', 'color: purple; font-weight: bold;');
-                console.log('Formulário:', form ? '✅ OK' : '❌ ERRO');
-                console.log('Botão:', button ? '✅ OK' : '❌ ERRO');
-                
-                if (form && button) {
-                    console.log('%c🎯 SISTEMA PRONTO PARA USO!', 'color: green; font-weight: bold; font-size: 20px;');
-                }
-            }, 2000);
-        });
+        // Backup adicional
+        window.addEventListener('load', ultraAggressiveInit);
+        
+        // Último recurso - force após 3 segundos
+        setTimeout(() => {
+            console.log('%c🔧 BACKUP FINAL - VERIFICANDO SISTEMA...', 'color: blue; font-weight: bold;');
+            
+            const button = document.getElementById('startBtn');
+            if (button && !button.onclick) {
+                console.log('%c🆘 APLICANDO FORCE FINAL!', 'color: red; font-weight: bold;');
+                button.onclick = window.forceFormSubmit;
+            }
+        }, 3000);
     </script>
 </body>
 </html>
