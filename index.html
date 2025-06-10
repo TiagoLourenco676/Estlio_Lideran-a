@@ -815,10 +815,21 @@
         </div> <!-- Fim do formContainer -->
     </div>
 
+    <!-- Scripts do Supabase DIRETO -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
     <script>
         // === VERSÃO 3.0 EMERGENCY FIX - TOTAL OVERHAUL ===
         console.log('%c🚨 EMERGENCY FIX 3.0 CARREGADA! 🚨', 'background: red; color: white; font-size: 24px; padding: 10px; font-weight: bold;');
         console.log('%c=== CACHE DESTRUÍDO - NOVA VERSÃO ===', 'color: blue; font-size: 18px; font-weight: bold;');
+        
+        // CREDENCIAIS SUPABASE - VISÍVEIS E DIRETAS
+        const SUPABASE_URL = 'https://oyzocircslqogsstsbki.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95em9jaXJjc2xxb2dzc3RzYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1ODAzMTMsImV4cCI6MjA2NTE1NjMxM30.VipaRyKtxpdYLCYHoIdJZ96ADQI0cORGUu0pZgvTOGg';
+        
+        console.log('%c🔑 CREDENCIAIS SUPABASE CARREGADAS:', 'color: green; font-weight: bold;');
+        console.log('URL:', SUPABASE_URL);
+        console.log('KEY:', SUPABASE_KEY.substring(0, 20) + '...');
         
         // Dados do candidato
         let candidateData = {};
@@ -826,41 +837,45 @@
         // Variável global para Supabase
         let SUPABASE_CLIENT = null;
         
-        // Tentar criar cliente Supabase após carregamento
-        async function initializeSupabase() {
-            console.log('%c🔄 Inicializando Supabase...', 'color: orange; font-weight: bold;');
+        // Inicializar Supabase DIRETO
+        function initializeSupabase() {
+            console.log('%c🔄 Inicializando Supabase DIRETO...', 'color: orange; font-weight: bold;');
             
             try {
-                // Aguardar carregamento da biblioteca
-                let attempts = 0;
-                while (!window.supabase && attempts < 10) {
-                    console.log('⏳ Aguardando Supabase... tentativa', attempts + 1);
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    attempts++;
-                }
-                
+                // Verificar se biblioteca carregou
                 if (window.supabase) {
-                    SUPABASE_CLIENT = window.supabase.createClient(
-                        'https://oyzocircslqogsstsbki.supabase.co',
-                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95em9jaXJjc2xxb2dzc3RzYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1ODAzMTMsImV4cCI6MjA2NTE1NjMxM30.VipaRyKtxpdYLCYHoIdJZ96ADQI0cORGUu0pZgvTOGg'
-                    );
-                    console.log('%c✅ SUPABASE CRIADO COM SUCESSO!', 'color: green; font-weight: bold; font-size: 16px;');
+                    console.log('%c✅ Biblioteca Supabase encontrada!', 'color: green; font-weight: bold;');
+                    
+                    SUPABASE_CLIENT = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                    console.log('%c✅ CLIENTE SUPABASE CRIADO!', 'color: green; font-weight: bold; font-size: 16px;');
                     
                     // Teste de conexão
-                    const { count, error } = await SUPABASE_CLIENT
-                        .from('leadership_assessments')
-                        .select('*', { count: 'exact', head: true });
-                    
-                    if (error) {
-                        console.error('%c❌ Erro no teste de conexão:', 'color: red; font-weight: bold;', error);
-                    } else {
-                        console.log('%c🎯 CONEXÃO FUNCIONANDO! Registros:', 'color: green; font-weight: bold;', count);
-                    }
+                    testSupabaseConnection();
                 } else {
-                    console.error('%c❌ Biblioteca Supabase não carregou', 'color: red; font-weight: bold;');
+                    console.error('%c❌ Biblioteca Supabase NÃO encontrada', 'color: red; font-weight: bold;');
+                    console.log('window.supabase:', window.supabase);
+                    console.log('Disponível:', typeof window.supabase);
                 }
             } catch (error) {
-                console.error('%c❌ Erro ao inicializar Supabase:', 'color: red; font-weight: bold;', error);
+                console.error('%c❌ Erro ao criar cliente:', 'color: red; font-weight: bold;', error);
+            }
+        }
+        
+        async function testSupabaseConnection() {
+            try {
+                console.log('%c🧪 Testando conexão...', 'color: blue; font-weight: bold;');
+                
+                const { count, error } = await SUPABASE_CLIENT
+                    .from('leadership_assessments')
+                    .select('*', { count: 'exact', head: true });
+                
+                if (error) {
+                    console.error('%c❌ Erro no teste:', 'color: red; font-weight: bold;', error);
+                } else {
+                    console.log('%c🎯 CONEXÃO FUNCIONANDO! Registros:', 'color: green; font-weight: bold; font-size: 16px;', count);
+                }
+            } catch (err) {
+                console.error('%c❌ Erro no teste de conexão:', 'color: red; font-weight: bold;', err);
             }
         }
 
@@ -1180,14 +1195,10 @@
             updateProgress();
             document.getElementById('personalDataModal').style.display = 'flex';
             
-            // Carregar Supabase dinamicamente
-            const script = document.createElement('script');
-            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.3/umd/index.js';
-            script.onload = initializeSupabase;
-            script.onerror = () => {
-                console.error('%c❌ Falha ao carregar Supabase - modo offline', 'color: red; font-weight: bold;');
-            };
-            document.head.appendChild(script);
+            // Inicializar Supabase DIRETO (não carregar via script)
+            setTimeout(() => {
+                initializeSupabase();
+            }, 1000);
         });
     </script>
 </body>
