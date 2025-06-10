@@ -384,7 +384,7 @@
                     </div>
                     <button type="submit" class="modal-btn">Iniciar Avaliação</button>
                     <div style="text-align: center; margin-top: 15px; font-size: 0.9em; color: #6c757d; background: yellow; padding: 5px; border-radius: 5px;">
-                        🚨 VERSÃO 3.0 EMERGENCY FIX 🚨
+                        🚨 VERSÃO 3.1 BUG FIX - FORMULÁRIO CORRIGIDO 🚨
                     </div>
                 </form>
             </div>
@@ -819,9 +819,9 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
     <script>
-        // === VERSÃO 3.0 EMERGENCY FIX - TOTAL OVERHAUL ===
-        console.log('%c🚨 EMERGENCY FIX 3.0 CARREGADA! 🚨', 'background: red; color: white; font-size: 24px; padding: 10px; font-weight: bold;');
-        console.log('%c=== CACHE DESTRUÍDO - NOVA VERSÃO ===', 'color: blue; font-size: 18px; font-weight: bold;');
+        // === VERSÃO 3.1 BUG FIX - FORMULÁRIO CORRIGIDO ===
+        console.log('%c🚨 VERSÃO 3.1 BUG FIX CARREGADA! 🚨', 'background: red; color: white; font-size: 24px; padding: 10px; font-weight: bold;');
+        console.log('%c=== FORMULÁRIO CORRIGIDO - EVENTOS FIXADOS ===', 'color: blue; font-size: 18px; font-weight: bold;');
         
         // CREDENCIAIS SUPABASE - VISÍVEIS E DIRETAS
         const SUPABASE_URL = 'https://oyzocircslqogsstsbki.supabase.co';
@@ -916,7 +916,7 @@
         document.getElementById('personalDataForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            console.log('%c📝 FORMULÁRIO SUBMETIDO - VERSÃO 3.0!', 'color: purple; font-weight: bold;');
+                            console.log('%c📝 FORMULÁRIO SUBMETIDO - VERSÃO 3.1!', 'color: purple; font-weight: bold;');
             
             const name = document.getElementById('candidateName').value.trim();
             const cpf = document.getElementById('candidateCPF').value;
@@ -935,6 +935,8 @@
             }
             
             candidateData = { name, cpf, position };
+            
+            console.log('%c✅ FECHANDO MODAL E MOSTRANDO FORMULÁRIO', 'color: green; font-weight: bold;');
             
             // Fechar modal e mostrar formulário
             document.getElementById('personalDataModal').style.display = 'none';
@@ -1035,7 +1037,7 @@
         }
 
         async function calculateResults() {
-            console.log('%c🎯 CALCULANDO RESULTADOS - VERSÃO 3.0!', 'color: green; font-weight: bold; font-size: 16px;');
+            console.log('%c🎯 CALCULANDO RESULTADOS - VERSÃO 3.1!', 'color: green; font-weight: bold; font-size: 16px;');
             
             // Verificar se todas as dimensões estão válidas
             const allValid = document.querySelectorAll('.dimension.completed').length === 6;
@@ -1180,7 +1182,7 @@
                 <h3>${styleInfo.title}</h3>
                 <p>${styleInfo.description}</p>
                 <p><strong>Sua pontuação total:</strong> ${scores[dominantStyle]} pontos</p>
-                <p><small style="color: orange;">Processado pela Versão 3.0 Emergency Fix</small></p>
+                <p><small style="color: orange;">Processado pela Versão 3.1 Bug Fix</small></p>
             `;
 
             // Mostrar resultados
@@ -1189,17 +1191,49 @@
         }
 
         // Inicializar sistema
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('%c🚀 DOM CARREGADO - INICIANDO SISTEMA 3.0', 'color: blue; font-weight: bold;');
+        function initializeSystem() {
+            console.log('%c🚀 INICIALIZANDO SISTEMA 3.1', 'color: blue; font-weight: bold;');
+            
+            // Verificar se elementos existem
+            const modal = document.getElementById('personalDataModal');
+            const form = document.getElementById('personalDataForm');
+            const container = document.getElementById('formContainer');
+            
+            console.log('🔍 Elementos encontrados:');
+            console.log('Modal:', modal ? '✅ OK' : '❌ ERRO');
+            console.log('Form:', form ? '✅ OK' : '❌ ERRO');
+            console.log('Container:', container ? '✅ OK' : '❌ ERRO');
+            
+            // Configurar eventos
+            setupFormEvents();
+            setupCPFMask();
             
             updateProgress();
-            document.getElementById('personalDataModal').style.display = 'flex';
             
-            // Inicializar Supabase DIRETO (não carregar via script)
+            // Mostrar modal
+            if (modal) {
+                modal.style.display = 'flex';
+                console.log('%c✅ MODAL EXIBIDO', 'color: green; font-weight: bold;');
+            } else {
+                console.error('%c❌ MODAL NÃO ENCONTRADO!', 'color: red; font-weight: bold;');
+            }
+            
+            // Inicializar Supabase
             setTimeout(() => {
                 initializeSupabase();
             }, 1000);
-        });
+        }
+
+        // Event listeners para inicialização
+        document.addEventListener('DOMContentLoaded', initializeSystem);
+        
+        // Fallback caso DOMContentLoaded já tenha passado
+        if (document.readyState === 'loading') {
+            // DOM ainda carregando, aguardar DOMContentLoaded
+        } else {
+            // DOM já carregado, inicializar imediatamente
+            setTimeout(initializeSystem, 100);
+        }
     </script>
 </body>
 </html>
