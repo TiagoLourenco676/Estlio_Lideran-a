@@ -817,9 +817,16 @@
     
     <script>
         // Configuração do Supabase - SUBSTITUA PELAS SUAS CREDENCIAIS
-        const SUPABASE_URL = 'https://oyzocircslqogsstsbki.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95em9jaXJjc2xxb2dzc3RzYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1ODAzMTMsImV4cCI6MjA2NTE1NjMxM30.VipaRyKtxpdYLCYHoIdJZ96ADQI0cORGUu0pZgvTOGg';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const SUPABASE_URL = 'SUA_URL_DO_SUPABASE';
+        const SUPABASE_KEY = 'SUA_CHAVE_PUBLICA_DO_SUPABASE';
+        
+        // Verificar se as credenciais foram configuradas
+        const isSupabaseConfigured = SUPABASE_URL !== 'SUA_URL_DO_SUPABASE' && SUPABASE_KEY !== 'SUA_CHAVE_PUBLICA_DO_SUPABASE';
+        
+        let supabase = null;
+        if (isSupabaseConfigured) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
 
         // Dados do candidato
         let candidateData = {};
@@ -861,9 +868,13 @@
         document.getElementById('personalDataForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            console.log('Formulário submetido!'); // Debug
+            
             const name = document.getElementById('candidateName').value.trim();
             const cpf = document.getElementById('candidateCPF').value;
             const position = document.getElementById('jobPosition').value.trim();
+            
+            console.log('Dados:', { name, cpf, position }); // Debug
             
             if (!name || !cpf || !position) {
                 showMessage('Por favor, preencha todos os campos.', 'error');
@@ -875,7 +886,15 @@
                 return;
             }
             
+            // Verificar se Supabase está configurado
+            if (!isSupabaseConfigured) {
+                showMessage('⚠️ Supabase não configurado! O formulário funcionará em modo de demonstração.', 'error');
+                // Continuar mesmo assim para demonstração
+            }
+            
             candidateData = { name, cpf, position };
+            
+            console.log('Dados salvos:', candidateData); // Debug
             
             // Fechar modal e mostrar formulário
             document.getElementById('personalDataModal').style.display = 'none';
@@ -884,7 +903,10 @@
             // Mostrar informações do candidato
             document.getElementById('candidateInfo').innerHTML = `
                 <strong>Candidato:</strong> ${name} | <strong>CPF:</strong> ${cpf} | <strong>Vaga:</strong> ${position}
+                ${!isSupabaseConfigured ? '<br><small style="color: orange;">⚠️ Modo demonstração - Configure o Supabase para salvar dados</small>' : ''}
             `;
+            
+            showMessage('Dados coletados com sucesso! Agora preencha a avaliação.', 'success');
         });
 
         function showMessage(message, type) {
@@ -1020,21 +1042,44 @@
                 document.getElementById('calculateBtn').disabled = true;
                 document.getElementById('calculateBtn').textContent = 'Salvando...';
                 
-                await saveToSupabase(scores, dominantStyle);
+                const result = await saveToSupabase(scores, dominantStyle);
                 
                 // Exibir resultados
                 displayResults(scores, dominantStyle);
                 
-                showMessage('Resultado salvo com sucesso!', 'success');
+                if (result.mode === 'demo') {
+                    showMessage('Resultado calculado! (Modo demonstração - Configure o Supabase para salvar no banco)', 'success');
+                } else {
+                    showMessage('Resultado salvo com sucesso no banco de dados!', 'success');
+                }
             } catch (error) {
                 console.error('Erro ao salvar:', error);
-                showMessage('Erro ao salvar resultado. Tente novamente.', 'error');
+                showMessage('Erro ao salvar resultado: ' + error.message, 'error');
+                
+                // Mesmo com erro, mostrar os resultados
+                displayResults(scores, dominantStyle);
+            } finally {
                 document.getElementById('calculateBtn').disabled = false;
                 document.getElementById('calculateBtn').textContent = 'Calcular Meu Estilo de Liderança';
             }
         }
 
         async function saveToSupabase(scores, dominantStyle) {
+            // Se Supabase não estiver configurado, simular salvamento
+            if (!isSupabaseConfigured) {
+                console.log('Simulando salvamento:', {
+                    candidate_name: candidateData.name,
+                    candidate_cpf: candidateData.cpf,
+                    job_position: candidateData.position,
+                    scores: scores,
+                    dominant_style: dominantStyle
+                });
+                
+                // Simular delay de rede
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                return { success: true, mode: 'demo' };
+            }
+            
             const { data, error } = await supabase
                 .from('leadership_assessments')
                 .insert([
@@ -1115,6 +1160,12 @@
         
         // Mostrar modal na inicialização
         document.getElementById('personalDataModal').style.display = 'flex';
+        
+        // Debug: Verificar status do Supabase
+        console.log('Status do Supabase:', isSupabaseConfigured ? 'Configurado' : 'Não configurado');
+        if (!isSupabaseConfigured) {
+            console.log('⚠️ Para salvar dados no banco, configure as credenciais do Supabase no código JavaScript');
+        }
     </script>
 </body>
 </html>
