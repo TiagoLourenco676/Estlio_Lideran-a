@@ -283,6 +283,16 @@
             display: none;
         }
 
+        .version-info {
+            background: yellow;
+            color: black;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
         @media (max-width: 768px) {
             .search-form {
                 flex-direction: column;
@@ -294,6 +304,9 @@
             
             .results-table {
                 font-size: 0.9em;
+                overflow-x: auto;
+                display: block;
+                white-space: nowrap;
             }
             
             .results-table th,
@@ -307,6 +320,9 @@
     <!-- Modal de Login -->
     <div id="loginModal" class="login-modal">
         <div class="login-content">
+            <div class="version-info">
+                🚨 PAINEL ADMIN v3.0 - EMERGENCY FIX 🚨
+            </div>
             <h2 id="loginTitle">Acesso Administrativo</h2>
             <p id="loginSubtitle">Digite sua senha para acessar o painel</p>
             
@@ -335,8 +351,11 @@
         
         <div class="container">
             <div class="header">
-                <h1>Painel Administrativo</h1>
+                <h1>Painel Administrativo v3.0</h1>
                 <p>Gestão de Resultados de Avaliação de Liderança</p>
+                <div class="version-info">
+                    Sistema funcionando com Emergency Fix - Conexão Supabase ativa
+                </div>
             </div>
 
             <!-- Estatísticas -->
@@ -379,20 +398,42 @@
         </div>
     </div>
 
-    <!-- Scripts do Supabase -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.3/umd/index.js"></script>
+    <!-- Scripts do Supabase DIRETO -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
     <script>
-        // Configuração do Supabase - MESMAS CREDENCIAIS DO FORMULÁRIO
-        const SUPABASE_URL = 'SUA_URL_DO_SUPABASE';
-        const SUPABASE_KEY = 'SUA_CHAVE_PUBLICA_DO_SUPABASE';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
+        // === PAINEL ADMIN v3.0 EMERGENCY FIX ===
+        console.log('%c🚨 PAINEL ADMIN v3.0 EMERGENCY FIX CARREGADO! 🚨', 'background: red; color: white; font-size: 20px; padding: 10px; font-weight: bold;');
+        
+        // CREDENCIAIS SUPABASE - MESMAS DO FORMULÁRIO
+        const SUPABASE_URL = 'https://oyzocircslqogsstsbki.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95em9jaXJjc2xxb2dzc3RzYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1ODAzMTMsImV4cCI6MjA2NTE1NjMxM30.VipaRyKtxpdYLCYHoIdJZ96ADQI0cORGUu0pZgvTOGg';
+        
+        let supabase = null;
         let isFirstAccess = false;
         let allResults = [];
 
+        // Inicializar Supabase
+        function initializeSupabase() {
+            console.log('%c🔄 Inicializando Supabase no painel admin...', 'color: orange; font-weight: bold;');
+            
+            try {
+                if (window.supabase) {
+                    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                    console.log('%c✅ SUPABASE ADMIN CRIADO!', 'color: green; font-weight: bold; font-size: 16px;');
+                    return true;
+                } else {
+                    console.error('%c❌ Biblioteca Supabase não encontrada no admin', 'color: red; font-weight: bold;');
+                    return false;
+                }
+            } catch (error) {
+                console.error('%c❌ Erro ao criar cliente admin:', 'color: red; font-weight: bold;', error);
+                return false;
+            }
+        }
+
         // Verificar se é o primeiro acesso
-        async function checkFirstAccess() {
+        function checkFirstAccess() {
             const hasPassword = localStorage.getItem('admin_password_set');
             if (!hasPassword) {
                 isFirstAccess = true;
@@ -464,6 +505,8 @@
 
         // Carregar dashboard
         async function loadDashboard() {
+            console.log('%c📊 Carregando dashboard...', 'color: blue; font-weight: bold;');
+            
             try {
                 await loadAllResults();
                 await loadStatistics();
@@ -476,13 +519,20 @@
 
         // Carregar todos os resultados
         async function loadAllResults() {
+            console.log('%c🔍 Buscando resultados no banco...', 'color: blue; font-weight: bold;');
+            
             const { data, error } = await supabase
                 .from('leadership_assessments')
                 .select('*')
                 .order('assessment_date', { ascending: false });
 
-            if (error) throw error;
+            if (error) {
+                console.error('%c❌ Erro ao buscar resultados:', 'color: red; font-weight: bold;', error);
+                throw error;
+            }
+            
             allResults = data || [];
+            console.log('%c✅ Resultados carregados:', 'color: green; font-weight: bold;', allResults.length, 'registros');
         }
 
         // Carregar estatísticas
@@ -741,7 +791,13 @@
 
         // Inicialização
         window.addEventListener('load', function() {
-            checkFirstAccess();
+            console.log('%c🚀 PAINEL ADMIN CARREGANDO...', 'color: blue; font-weight: bold;');
+            
+            if (initializeSupabase()) {
+                checkFirstAccess();
+            } else {
+                showError('Erro ao conectar com o banco de dados.');
+            }
         });
     </script>
 </body>
