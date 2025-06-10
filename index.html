@@ -337,6 +337,22 @@
             display: block;
         }
 
+        .fix-notice {
+            background: #ff4444;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            margin: 10px 0;
+            border-radius: 5px;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.7; }
+        }
+
         @media (max-width: 600px) {
             .container {
                 margin: 10px;
@@ -367,6 +383,9 @@
         <!-- Modal para dados pessoais -->
         <div id="personalDataModal" class="modal">
             <div class="modal-content">
+                <div class="fix-notice">
+                    🔧 BOTÃO CORRIGIDO - VERSÃO 3.2 🔧
+                </div>
                 <h2>Dados Pessoais</h2>
                 <p>Para iniciar a avaliação, precisamos de algumas informações:</p>
                 <form id="personalDataForm">
@@ -382,10 +401,7 @@
                         <label for="jobPosition">Vaga de Emprego:</label>
                         <input type="text" id="jobPosition" required>
                     </div>
-                    <button type="submit" class="modal-btn">Iniciar Avaliação</button>
-                    <div style="text-align: center; margin-top: 15px; font-size: 0.9em; color: #6c757d; background: yellow; padding: 5px; border-radius: 5px;">
-                        🚨 VERSÃO 3.1 BUG FIX - FORMULÁRIO CORRIGIDO 🚨
-                    </div>
+                    <button type="submit" class="modal-btn" id="startBtn">Iniciar Avaliação</button>
                 </form>
             </div>
         </div>
@@ -819,63 +835,32 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
     <script>
-        // === VERSÃO 3.1 BUG FIX - FORMULÁRIO CORRIGIDO ===
-        console.log('%c🚨 VERSÃO 3.1 BUG FIX CARREGADA! 🚨', 'background: red; color: white; font-size: 24px; padding: 10px; font-weight: bold;');
-        console.log('%c=== FORMULÁRIO CORRIGIDO - EVENTOS FIXADOS ===', 'color: blue; font-size: 18px; font-weight: bold;');
+        // === VERSÃO 3.2 - BOTÃO CORRIGIDO ===
+        console.log('%c🚨 VERSÃO 3.2 - BOTÃO CORRIGIDO! 🚨', 'background: #ff4444; color: white; font-size: 24px; padding: 10px; font-weight: bold;');
         
-        // CREDENCIAIS SUPABASE - VISÍVEIS E DIRETAS
+        // CREDENCIAIS SUPABASE
         const SUPABASE_URL = 'https://oyzocircslqogsstsbki.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95em9jaXJjc2xxb2dzc3RzYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1ODAzMTMsImV4cCI6MjA2NTE1NjMxM30.VipaRyKtxpdYLCYHoIdJZ96ADQI0cORGUu0pZgvTOGg';
         
-        console.log('%c🔑 CREDENCIAIS SUPABASE CARREGADAS:', 'color: green; font-weight: bold;');
-        console.log('URL:', SUPABASE_URL);
-        console.log('KEY:', SUPABASE_KEY.substring(0, 20) + '...');
-        
-        // Dados do candidato
         let candidateData = {};
-        
-        // Variável global para Supabase
         let SUPABASE_CLIENT = null;
         
-        // Inicializar Supabase DIRETO
+        // Inicializar Supabase
         function initializeSupabase() {
-            console.log('%c🔄 Inicializando Supabase DIRETO...', 'color: orange; font-weight: bold;');
+            console.log('%c🔄 Inicializando Supabase...', 'color: orange; font-weight: bold;');
             
             try {
-                // Verificar se biblioteca carregou
                 if (window.supabase) {
-                    console.log('%c✅ Biblioteca Supabase encontrada!', 'color: green; font-weight: bold;');
-                    
                     SUPABASE_CLIENT = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-                    console.log('%c✅ CLIENTE SUPABASE CRIADO!', 'color: green; font-weight: bold; font-size: 16px;');
-                    
-                    // Teste de conexão
-                    testSupabaseConnection();
+                    console.log('%c✅ SUPABASE CONECTADO!', 'color: green; font-weight: bold;');
+                    return true;
                 } else {
-                    console.error('%c❌ Biblioteca Supabase NÃO encontrada', 'color: red; font-weight: bold;');
-                    console.log('window.supabase:', window.supabase);
-                    console.log('Disponível:', typeof window.supabase);
+                    console.error('%c❌ Supabase não encontrado', 'color: red; font-weight: bold;');
+                    return false;
                 }
             } catch (error) {
-                console.error('%c❌ Erro ao criar cliente:', 'color: red; font-weight: bold;', error);
-            }
-        }
-        
-        async function testSupabaseConnection() {
-            try {
-                console.log('%c🧪 Testando conexão...', 'color: blue; font-weight: bold;');
-                
-                const { count, error } = await SUPABASE_CLIENT
-                    .from('leadership_assessments')
-                    .select('*', { count: 'exact', head: true });
-                
-                if (error) {
-                    console.error('%c❌ Erro no teste:', 'color: red; font-weight: bold;', error);
-                } else {
-                    console.log('%c🎯 CONEXÃO FUNCIONANDO! Registros:', 'color: green; font-weight: bold; font-size: 16px;', count);
-                }
-            } catch (err) {
-                console.error('%c❌ Erro no teste de conexão:', 'color: red; font-weight: bold;', err);
+                console.error('%c❌ Erro ao conectar:', 'color: red; font-weight: bold;', error);
+                return false;
             }
         }
 
@@ -888,11 +873,6 @@
                 .replace(/(\d{3})(\d{1,2})/, '$1-$2')
                 .replace(/(-\d{2})\d+?$/, '$1');
         }
-
-        // Aplicar máscara em tempo real
-        document.getElementById('candidateCPF').addEventListener('input', function(e) {
-            e.target.value = applyCPFMask(e.target.value);
-        });
 
         // Validar CPF
         function isValidCPF(cpf) {
@@ -912,45 +892,6 @@
             return resto === parseInt(cpf.charAt(10));
         }
 
-        // Submissão dos dados pessoais
-        document.getElementById('personalDataForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-                            console.log('%c📝 FORMULÁRIO SUBMETIDO - VERSÃO 3.1!', 'color: purple; font-weight: bold;');
-            
-            const name = document.getElementById('candidateName').value.trim();
-            const cpf = document.getElementById('candidateCPF').value;
-            const position = document.getElementById('jobPosition').value.trim();
-            
-            console.log('📊 Dados coletados:', { name, cpf, position });
-            
-            if (!name || !cpf || !position) {
-                showMessage('Por favor, preencha todos os campos.', 'error');
-                return;
-            }
-            
-            if (!isValidCPF(cpf)) {
-                showMessage('CPF inválido. Por favor, verifique os dados.', 'error');
-                return;
-            }
-            
-            candidateData = { name, cpf, position };
-            
-            console.log('%c✅ FECHANDO MODAL E MOSTRANDO FORMULÁRIO', 'color: green; font-weight: bold;');
-            
-            // Fechar modal e mostrar formulário
-            document.getElementById('personalDataModal').style.display = 'none';
-            document.getElementById('formContainer').classList.add('show');
-            
-            // Mostrar informações do candidato
-            document.getElementById('candidateInfo').innerHTML = `
-                <strong>Candidato:</strong> ${name} | <strong>CPF:</strong> ${cpf} | <strong>Vaga:</strong> ${position}
-                <br><small style="color: orange;">🚨 VERSÃO 3.0 EMERGENCY FIX ATIVA 🚨</small>
-            `;
-            
-            showMessage('✅ Dados coletados! Complete a avaliação.', 'success');
-        });
-
         function showMessage(message, type) {
             const messageDiv = document.getElementById('statusMessage');
             messageDiv.textContent = message;
@@ -960,64 +901,46 @@
             }, 5000);
         }
 
-        // Configurar eventos do formulário - com verificação
-        function setupFormEvents() {
-            const form = document.getElementById('personalDataForm');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    
-                    console.log('%c📝 FORMULÁRIO SUBMETIDO - VERSÃO 3.1!', 'color: purple; font-weight: bold;');
-                    
-                    const name = document.getElementById('candidateName').value.trim();
-                    const cpf = document.getElementById('candidateCPF').value;
-                    const position = document.getElementById('jobPosition').value.trim();
-                    
-                    console.log('📊 Dados coletados:', { name, cpf, position });
-                    
-                    if (!name || !cpf || !position) {
-                        showMessage('Por favor, preencha todos os campos.', 'error');
-                        return;
-                    }
-                    
-                    if (!isValidCPF(cpf)) {
-                        showMessage('CPF inválido. Por favor, verifique os dados.', 'error');
-                        return;
-                    }
-                    
-                    candidateData = { name, cpf, position };
-                    
-                    console.log('%c✅ FECHANDO MODAL E MOSTRANDO FORMULÁRIO', 'color: green; font-weight: bold;');
-                    
-                    // Fechar modal e mostrar formulário
-                    document.getElementById('personalDataModal').style.display = 'none';
-                    document.getElementById('formContainer').classList.add('show');
-                    
-                    // Mostrar informações do candidato
-                    document.getElementById('candidateInfo').innerHTML = `
-                        <strong>Candidato:</strong> ${name} | <strong>CPF:</strong> ${cpf} | <strong>Vaga:</strong> ${position}
-                        <br><small style="color: orange;">🚨 VERSÃO 3.1 BUG FIX - FORMULÁRIO CORRIGIDO 🚨</small>
-                    `;
-                    
-                    showMessage('✅ Dados coletados! Complete a avaliação.', 'success');
-                });
-                console.log('✅ Event listener do formulário configurado');
-            } else {
-                console.error('❌ Formulário não encontrado');
+        // FUNÇÃO PRINCIPAL PARA PROCESSAR O FORMULÁRIO
+        function handleFormSubmission(e) {
+            e.preventDefault();
+            
+            console.log('%c📝 PROCESSANDO FORMULÁRIO...', 'color: blue; font-weight: bold; font-size: 16px;');
+            
+            const name = document.getElementById('candidateName').value.trim();
+            const cpf = document.getElementById('candidateCPF').value;
+            const position = document.getElementById('jobPosition').value.trim();
+            
+            console.log('📊 Dados coletados:', { name, cpf, position });
+            
+            // Validações
+            if (!name || !cpf || !position) {
+                showMessage('❌ Por favor, preencha todos os campos.', 'error');
+                return false;
             }
-        }
-
-        // Aplicar máscara em tempo real - com verificação
-        function setupCPFMask() {
-            const cpfField = document.getElementById('candidateCPF');
-            if (cpfField) {
-                cpfField.addEventListener('input', function(e) {
-                    e.target.value = applyCPFMask(e.target.value);
-                });
-                console.log('✅ Máscara CPF configurada');
-            } else {
-                console.error('❌ Campo CPF não encontrado');
+            
+            if (!isValidCPF(cpf)) {
+                showMessage('❌ CPF inválido. Por favor, verifique os dados.', 'error');
+                return false;
             }
+            
+            // Salvar dados
+            candidateData = { name, cpf, position };
+            
+            // Fechar modal e mostrar formulário
+            document.getElementById('personalDataModal').style.display = 'none';
+            document.getElementById('formContainer').classList.add('show');
+            
+            // Mostrar informações do candidato
+            document.getElementById('candidateInfo').innerHTML = `
+                <strong>Candidato:</strong> ${name} | <strong>CPF:</strong> ${cpf} | <strong>Vaga:</strong> ${position}
+                <br><small style="color: #ff4444; font-weight: bold;">🔧 VERSÃO 3.2 - BOTÃO FUNCIONANDO 🔧</small>
+            `;
+            
+            showMessage('✅ Dados coletados! Complete a avaliação.', 'success');
+            
+            console.log('%c✅ FORMULÁRIO PROCESSADO COM SUCESSO!', 'color: green; font-weight: bold; font-size: 16px;');
+            return true;
         }
 
         const styleDescriptions = {
@@ -1097,7 +1020,7 @@
         }
 
         async function calculateResults() {
-            console.log('%c🎯 CALCULANDO RESULTADOS - VERSÃO 3.1!', 'color: green; font-weight: bold; font-size: 16px;');
+            console.log('%c🎯 CALCULANDO RESULTADOS...', 'color: green; font-weight: bold; font-size: 16px;');
             
             // Verificar se todas as dimensões estão válidas
             const allValid = document.querySelectorAll('.dimension.completed').length === 6;
@@ -1114,19 +1037,14 @@
                 '9.9': 0  // Soma de todas as alternativas E
             };
 
-            // Calcular pontuações - método simples e correto
+            // Calcular pontuações
             const dimensions = ['decisao', 'conviccoes', 'conflito', 'emocoes', 'humor', 'empenho'];
             
             dimensions.forEach(dimension => {
-                // A = Estilo 1.1
                 scores['1.1'] += parseInt(document.querySelector(`[name="${dimension}_a"]`).value);
-                // B = Estilo 1.9
                 scores['1.9'] += parseInt(document.querySelector(`[name="${dimension}_b"]`).value);
-                // C = Estilo 5.5
                 scores['5.5'] += parseInt(document.querySelector(`[name="${dimension}_c"]`).value);
-                // D = Estilo 9.1
                 scores['9.1'] += parseInt(document.querySelector(`[name="${dimension}_d"]`).value);
-                // E = Estilo 9.9
                 scores['9.9'] += parseInt(document.querySelector(`[name="${dimension}_e"]`).value);
             });
 
@@ -1145,21 +1063,18 @@
                 
                 if (SUPABASE_CLIENT) {
                     await saveToSupabase(scores, dominantStyle);
-                    showMessage('✅ Resultado salvo no banco de dados!', 'success');
-                } else {
-                    console.warn('%c⚠️ Supabase não disponível - modo offline', 'color: orange; font-weight: bold;');
-                    showMessage('✅ Resultado calculado! (Supabase offline)', 'success');
+                    showMessage('✅ Resultado salvo com sucesso!', 'success');
                 }
                 
             } catch (error) {
                 console.error('❌ Erro ao salvar:', error);
-                showMessage('⚠️ Erro ao salvar, mas resultado calculado corretamente', 'error');
+                showMessage('⚠️ Erro ao salvar, mas resultado calculado', 'error');
             } finally {
                 document.getElementById('calculateBtn').disabled = false;
                 document.getElementById('calculateBtn').textContent = 'Calcular Meu Estilo de Liderança';
             }
             
-            // Exibir resultados SEMPRE
+            // Exibir resultados
             displayResults(scores, dominantStyle);
         }
 
@@ -1180,18 +1095,13 @@
                 responses: JSON.stringify(getFormResponses())
             };
             
-            console.log('📦 Dados para salvar:', dataToSave);
-            
             const { data, error } = await SUPABASE_CLIENT
                 .from('leadership_assessments')
                 .insert([dataToSave]);
 
-            if (error) {
-                console.error('%c❌ Erro do Supabase:', 'color: red; font-weight: bold;', error);
-                throw error;
-            }
+            if (error) throw error;
             
-            console.log('%c✅ DADOS SALVOS COM SUCESSO!', 'color: green; font-weight: bold; font-size: 16px;', data);
+            console.log('%c✅ DADOS SALVOS!', 'color: green; font-weight: bold;');
             return data;
         }
 
@@ -1211,13 +1121,10 @@
         }
 
         function displayResults(scores, dominantStyle) {
-            console.log('%c🎨 Exibindo resultados...', 'color: purple; font-weight: bold;');
-            
             const resultsDiv = document.getElementById('results');
             const scoresDiv = document.getElementById('resultScores');
             const descriptionDiv = document.getElementById('styleDescription');
 
-            // Limpar resultados anteriores
             scoresDiv.innerHTML = '';
 
             // Criar cards de pontuação
@@ -1242,58 +1149,84 @@
                 <h3>${styleInfo.title}</h3>
                 <p>${styleInfo.description}</p>
                 <p><strong>Sua pontuação total:</strong> ${scores[dominantStyle]} pontos</p>
-                <p><small style="color: orange;">Processado pela Versão 3.1 Bug Fix</small></p>
+                <p><small style="color: #ff4444;">Processado pela Versão 3.2 - Botão Corrigido</small></p>
             `;
 
-            // Mostrar resultados
             resultsDiv.classList.add('show');
             resultsDiv.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Inicializar sistema
+        // === INICIALIZAÇÃO DO SISTEMA ===
         function initializeSystem() {
-            console.log('%c🚀 INICIALIZANDO SISTEMA 3.1', 'color: blue; font-weight: bold;');
+            console.log('%c🚀 INICIALIZANDO SISTEMA 3.2', 'color: blue; font-weight: bold; font-size: 18px;');
             
-            // Verificar se elementos existem
-            const modal = document.getElementById('personalDataModal');
+            // Configurar máscara CPF
+            const cpfField = document.getElementById('candidateCPF');
+            if (cpfField) {
+                cpfField.addEventListener('input', function(e) {
+                    e.target.value = applyCPFMask(e.target.value);
+                });
+                console.log('✅ Máscara CPF configurada');
+            }
+
+            // CONFIGURAR EVENT LISTENER DO FORMULÁRIO - VERSÃO CORRIGIDA
             const form = document.getElementById('personalDataForm');
-            const container = document.getElementById('formContainer');
-            
-            console.log('🔍 Elementos encontrados:');
-            console.log('Modal:', modal ? '✅ OK' : '❌ ERRO');
-            console.log('Form:', form ? '✅ OK' : '❌ ERRO');
-            console.log('Container:', container ? '✅ OK' : '❌ ERRO');
-            
-            // Configurar eventos
-            setupFormEvents();
-            setupCPFMask();
+            if (form) {
+                // Remover listeners antigos se existirem
+                form.removeEventListener('submit', handleFormSubmission);
+                
+                // Adicionar novo listener
+                form.addEventListener('submit', handleFormSubmission);
+                
+                console.log('%c✅ EVENT LISTENER CONFIGURADO COM SUCESSO!', 'color: green; font-weight: bold; font-size: 16px;');
+                
+                // Teste do botão
+                const submitBtn = document.getElementById('startBtn');
+                if (submitBtn) {
+                    submitBtn.onclick = function(e) {
+                        console.log('%c🔧 BOTÃO CLICADO DIRETAMENTE!', 'color: orange; font-weight: bold;');
+                        e.preventDefault();
+                        handleFormSubmission(e);
+                    };
+                    console.log('✅ Fallback do botão configurado');
+                }
+            } else {
+                console.error('%c❌ FORMULÁRIO NÃO ENCONTRADO!', 'color: red; font-weight: bold;');
+            }
             
             updateProgress();
-            
-            // Mostrar modal
-            if (modal) {
-                modal.style.display = 'flex';
-                console.log('%c✅ MODAL EXIBIDO', 'color: green; font-weight: bold;');
-            } else {
-                console.error('%c❌ MODAL NÃO ENCONTRADO!', 'color: red; font-weight: bold;');
-            }
             
             // Inicializar Supabase
             setTimeout(() => {
                 initializeSupabase();
             }, 1000);
+            
+            console.log('%c✅ SISTEMA 3.2 INICIALIZADO!', 'color: green; font-weight: bold; font-size: 18px;');
         }
 
-        // Event listeners para inicialização
-        document.addEventListener('DOMContentLoaded', initializeSystem);
-        
-        // Fallback caso DOMContentLoaded já tenha passado
+        // Garantir inicialização
         if (document.readyState === 'loading') {
-            // DOM ainda carregando, aguardar DOMContentLoaded
+            document.addEventListener('DOMContentLoaded', initializeSystem);
         } else {
-            // DOM já carregado, inicializar imediatamente
-            setTimeout(initializeSystem, 100);
+            initializeSystem();
         }
+
+        // Fallback adicional
+        window.addEventListener('load', function() {
+            // Aguardar um pouco e verificar se tudo está funcionando
+            setTimeout(() => {
+                const form = document.getElementById('personalDataForm');
+                const button = document.getElementById('startBtn');
+                
+                console.log('%c🔍 VERIFICAÇÃO FINAL:', 'color: purple; font-weight: bold;');
+                console.log('Formulário:', form ? '✅ OK' : '❌ ERRO');
+                console.log('Botão:', button ? '✅ OK' : '❌ ERRO');
+                
+                if (form && button) {
+                    console.log('%c🎯 SISTEMA PRONTO PARA USO!', 'color: green; font-weight: bold; font-size: 20px;');
+                }
+            }, 2000);
+        });
     </script>
 </body>
 </html>
