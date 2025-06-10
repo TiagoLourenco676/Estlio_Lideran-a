@@ -1055,11 +1055,6 @@
         }
 
         async function saveToSupabase(scores, dominantStyle) {
-            // Verificar se Supabase está disponível
-            if (!supabase) {
-                throw new Error('Supabase não está configurado corretamente');
-            }
-            
             console.log('🔄 Tentando salvar no Supabase...'); // Debug
             
             const dataToSave = {
