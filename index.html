@@ -1060,7 +1060,7 @@
                 throw new Error('Supabase não está configurado corretamente');
             }
             
-            console.log('Tentando salvar no Supabase...'); // Debug
+            console.log('🔄 Tentando salvar no Supabase...'); // Debug
             
             const dataToSave = {
                 candidate_name: candidateData.name,
@@ -1076,19 +1076,28 @@
                 responses: JSON.stringify(getFormResponses())
             };
             
-            console.log('Dados a serem salvos:', dataToSave); // Debug
+            console.log('📊 Dados a serem salvos:', dataToSave); // Debug
             
-            const { data, error } = await supabase
-                .from('leadership_assessments')
-                .insert([dataToSave]);
+            try {
+                const { data, error } = await supabase
+                    .from('leadership_assessments')
+                    .insert([dataToSave]);
 
-            if (error) {
-                console.error('Erro do Supabase:', error); // Debug
-                throw error;
+                if (error) {
+                    console.error('❌ Erro detalhado do Supabase:', error); // Debug
+                    console.error('❌ Código do erro:', error.code); // Debug
+                    console.error('❌ Mensagem:', error.message); // Debug
+                    console.error('❌ Detalhes:', error.details); // Debug
+                    throw error;
+                }
+                
+                console.log('✅ Dados salvos com sucesso no Supabase:', data); // Debug
+                return data;
+                
+            } catch (err) {
+                console.error('❌ Erro na operação de inserção:', err);
+                throw err;
             }
-            
-            console.log('Dados salvos com sucesso:', data); // Debug
-            return data;
         }
 
         function getFormResponses() {
