@@ -151,58 +151,74 @@
             transform: none;
         }
 
-        .results {
+        .completion-message {
             margin: 30px;
-            padding: 25px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            display: none;
-        }
-
-        .results.show {
-            display: block;
-        }
-
-        .result-scores {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .score-card {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 40px;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-radius: 15px;
+            border: 3px solid #28a745;
             text-align: center;
-            border: 2px solid #e9ecef;
-            transition: all 0.3s ease;
+            display: none;
+            box-shadow: 0 10px 30px rgba(40, 167, 69, 0.2);
         }
 
-        .score-card.highest {
-            border-color: #28a745;
-            background: #d4edda;
-            transform: scale(1.05);
+        .completion-message.show {
+            display: block;
+            animation: slideInSuccess 0.8s ease-out;
         }
 
-        .score-title {
-            font-weight: bold;
-            color: #495057;
+        @keyframes slideInSuccess {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .completion-content h2 {
+            color: #155724;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+
+        .completion-content p {
+            color: #155724;
+            font-size: 1.1em;
+            margin: 15px 0;
+            line-height: 1.6;
+        }
+
+        .completion-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #28a745;
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.1);
+        }
+
+        .stat-item strong {
+            color: #28a745;
+            font-size: 1.1em;
+            display: block;
             margin-bottom: 5px;
         }
 
-        .score-value {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        .style-description {
-            margin-top: 20px;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            border-left: 4px solid #28a745;
+        .stat-item span {
+            color: #6c757d;
+            font-size: 0.9em;
         }
 
         .progress-bar {
@@ -386,8 +402,8 @@
         <div id="personalDataModal" class="modal">
             <div class="modal-content">
                 <div class="fix-notice">
-                    ⚡ VERSÃO 3.3 ULTRA FORÇA ⚡<br>
-                    BOTÃO COM MÚLTIPLAS CAPTURAS
+                    🔒 VERSÃO 3.4 CONFIDENCIAL 🔒<br>
+                    RESULTADOS APENAS PARA RH
                 </div>
                 <h2>Dados Pessoais</h2>
                 <p>Para iniciar a avaliação, precisamos de algumas informações:</p>
@@ -430,6 +446,9 @@
 
             <div class="instructions">
                 <h3>Instruções:</h3>
+                <div style="background: #fff3cd; border: 2px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <p><strong>ℹ️ IMPORTANTE:</strong> Esta avaliação é <strong>confidencial</strong>. Seus resultados serão analisados pela equipe de RH e você receberá um retorno apropriado posteriormente.</p>
+                </div>
                 <p><strong>Leia com atenção e examine as cinco sentenças abaixo de cada dimensão.</strong> Depois de tê-las lido, considere cada uma delas como uma possível descrição de <strong>você mesmo</strong>. Coloque o número <strong>5</strong> ao lado da sentença que julgar mais parecida com o que você é. O verdadeiro "eu" e não o eu ideal. Seja honesto com você mesmo.</p>
                 <p>Coloque o número <strong>4</strong> em segundo lugar na semelhança com você. Continue distribuindo as demais sentenças, com <strong>3</strong> para o terceiro lugar, <strong>2</strong> para o quarto lugar e <strong>1</strong> para a quinta colocação. <strong>Lembre-se que não pode haver empate.</strong></p>
             </div>
@@ -840,10 +859,33 @@
             </button>
         </form>
 
-        <div class="results" id="results">
-            <h2>Seus Resultados</h2>
-            <div class="result-scores" id="resultScores"></div>
-            <div class="style-description" id="styleDescription"></div>
+        <div class="completion-message" id="completionMessage">
+            <h2>✅ Avaliação Concluída com Sucesso!</h2>
+            <div class="completion-content">
+                <p>🎯 <strong>Obrigado por completar a avaliação de liderança!</strong></p>
+                <p>📊 Suas respostas foram registradas e serão analisadas pela equipe de RH.</p>
+                <p>📧 Você receberá um retorno sobre os resultados em breve.</p>
+                
+                <div class="completion-stats">
+                    <div class="stat-item">
+                        <strong>✓ 6 Dimensões</strong><br>
+                        <span>Analisadas</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>✓ 30 Respostas</strong><br>
+                        <span>Registradas</span>
+                    </div>
+                    <div class="stat-item">
+                        <strong>✓ Dados</strong><br>
+                        <span>Seguros</span>
+                    </div>
+                </div>
+                
+                <p><small style="color: #6c757d;">
+                    Data de conclusão: <span id="completionDate"></span><br>
+                    ID da avaliação: <span id="assessmentId"></span>
+                </small></p>
+            </div>
         </div>
         </div> <!-- Fim do formContainer -->
     </div>
@@ -852,8 +894,8 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
     <script>
-        // === VERSÃO 3.3 ULTRA FORÇA - FORÇA BRUTA NO BOTÃO ===
-        console.log('%c⚡ VERSÃO 3.3 ULTRA FORÇA CARREGADA! ⚡', 'background: #ff0000; color: white; font-size: 24px; padding: 15px; font-weight: bold; border: 3px solid yellow;');
+        // === VERSÃO 3.4 CONFIDENCIAL - SEM RESULTADOS PARA CANDIDATO ===
+        console.log('%c🔒 VERSÃO 3.4 CONFIDENCIAL CARREGADA! 🔒', 'background: #ff8800; color: white; font-size: 24px; padding: 15px; font-weight: bold; border: 3px solid #333;');
         
         // CREDENCIAIS SUPABASE
         const SUPABASE_URL = 'https://oyzocircslqogsstsbki.supabase.co';
@@ -903,13 +945,13 @@
             if (info) {
                 info.innerHTML = `
                     <strong>Candidato:</strong> ${name} | <strong>CPF:</strong> ${cpf} | <strong>Vaga:</strong> ${position}
-                    <br><small style="color: #ff0000; font-weight: bold;">⚡ VERSÃO 3.3 - FORÇA BRUTA ATIVADA ⚡</small>
+                    <br><small style="color: #ff8800; font-weight: bold;">🔒 VERSÃO 3.4 - AVALIAÇÃO CONFIDENCIAL 🔒</small>
                 `;
             }
             
             showMessage('✅ SUCESSO VIA FORÇA BRUTA! Complete a avaliação.', 'success');
             
-            console.log('%c✅ FORMULÁRIO PROCESSADO VIA FORÇA BRUTA!', 'background: green; color: white; font-size: 16px; padding: 10px; font-weight: bold;');
+            console.log('%c✅ FORMULÁRIO PROCESSADO - MODO CONFIDENCIAL!', 'background: #ff8800; color: white; font-size: 16px; padding: 10px; font-weight: bold;');
             
             return false;
         };
@@ -1091,12 +1133,12 @@
                 
                 if (SUPABASE_CLIENT) {
                     await saveToSupabase(scores, dominantStyle);
-                    showMessage('✅ Resultado salvo com sucesso!', 'success');
+                    showMessage('✅ Avaliação registrada com sucesso!', 'success');
                 }
                 
             } catch (error) {
                 console.error('❌ Erro ao salvar:', error);
-                showMessage('⚠️ Erro ao salvar, mas resultado calculado', 'error');
+                showMessage('⚠️ Erro no registro, mas avaliação concluída', 'error');
             } finally {
                 const calcBtn = document.getElementById('calculateBtn');
                 if (calcBtn) {
@@ -1105,8 +1147,8 @@
                 }
             }
             
-            // Exibir resultados
-            displayResults(scores, dominantStyle);
+            // Exibir apenas mensagem de conclusão (SEM RESULTADOS)
+            displayCompletionMessage();
         }
 
         async function saveToSupabase(scores, dominantStyle) {
@@ -1148,49 +1190,36 @@
             return responses;
         }
 
-        function displayResults(scores, dominantStyle) {
-            const resultsDiv = document.getElementById('results');
-            const scoresDiv = document.getElementById('resultScores');
-            const descriptionDiv = document.getElementById('styleDescription');
-
-            if (scoresDiv) scoresDiv.innerHTML = '';
-
-            // Criar cards de pontuação
-            Object.entries(scores).forEach(([style, score]) => {
-                const scoreCard = document.createElement('div');
-                scoreCard.className = 'score-card';
-                if (style === dominantStyle) {
-                    scoreCard.classList.add('highest');
+        function displayCompletionMessage() {
+            console.log('%c🎉 EXIBINDO MENSAGEM DE CONCLUSÃO', 'color: green; font-weight: bold;');
+            
+            const completionDiv = document.getElementById('completionMessage');
+            const dateSpan = document.getElementById('completionDate');
+            const idSpan = document.getElementById('assessmentId');
+            
+            if (completionDiv) {
+                // Mostrar data de conclusão
+                if (dateSpan) {
+                    const now = new Date();
+                    dateSpan.textContent = now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR');
                 }
-
-                scoreCard.innerHTML = `
-                    <div class="score-title">Estilo ${style}</div>
-                    <div class="score-value">${score}</div>
-                `;
-
-                if (scoresDiv) scoresDiv.appendChild(scoreCard);
-            });
-
-            // Descrição do estilo dominante
-            const styleInfo = styleDescriptions[dominantStyle];
-            if (descriptionDiv && styleInfo) {
-                descriptionDiv.innerHTML = `
-                    <h3>${styleInfo.title}</h3>
-                    <p>${styleInfo.description}</p>
-                    <p><strong>Sua pontuação total:</strong> ${scores[dominantStyle]} pontos</p>
-                    <p><small style="color: #ff0000;">⚡ Processado pela Versão 3.3 - Ultra Força ⚡</small></p>
-                `;
-            }
-
-            if (resultsDiv) {
-                resultsDiv.classList.add('show');
-                resultsDiv.scrollIntoView({ behavior: 'smooth' });
+                
+                // Gerar ID único para esta avaliação
+                if (idSpan) {
+                    const assessmentId = 'LDR-' + Date.now().toString(36).toUpperCase();
+                    idSpan.textContent = assessmentId;
+                }
+                
+                completionDiv.classList.add('show');
+                completionDiv.scrollIntoView({ behavior: 'smooth' });
+                
+                console.log('%c✅ AVALIAÇÃO CONCLUÍDA - RESULTADOS CONFIDENCIAIS SALVOS!', 'background: green; color: white; font-weight: bold; padding: 10px;');
             }
         }
 
         // === SISTEMA DE INICIALIZAÇÃO ULTRA AGRESSIVO ===
         function ultraAggressiveInit() {
-            console.log('%c⚡ INICIALIZAÇÃO ULTRA AGRESSIVA! ⚡', 'background: red; color: white; font-size: 18px; padding: 10px; font-weight: bold;');
+            console.log('%c🔒 INICIALIZAÇÃO CONFIDENCIAL ATIVA! 🔒', 'background: #ff8800; color: white; font-size: 18px; padding: 10px; font-weight: bold;');
             
             // Configurar máscara CPF
             const cpfField = document.getElementById('candidateCPF');
@@ -1242,7 +1271,7 @@
                 initializeSupabase();
             }, 1000);
             
-            console.log('%c✅ ULTRA FORÇA INICIALIZADA!', 'background: green; color: white; font-size: 18px; padding: 10px; font-weight: bold;');
+            console.log('%c✅ VERSÃO 3.4 CONFIDENCIAL INICIALIZADA!', 'background: #ff8800; color: white; font-size: 18px; padding: 10px; font-weight: bold;');
         }
 
         // GARANTIR EXECUÇÃO EM QUALQUER ESTADO DO DOM
