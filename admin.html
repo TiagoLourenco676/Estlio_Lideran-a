@@ -126,6 +126,30 @@
             background: #5a6268;
         }
 
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .btn-view {
+            background: #28a745;
+            color: white;
+            padding: 8px 15px;
+            font-size: 0.9em;
+            margin-right: 5px;
+        }
+
+        .btn-view:hover {
+            background: #218838;
+        }
+
         /* Dashboard */
         .dashboard {
             display: none;
@@ -284,13 +308,101 @@
         }
 
         .version-info {
-            background: yellow;
-            color: black;
+            background: #28a745;
+            color: white;
             padding: 10px;
             text-align: center;
             font-weight: bold;
             border-radius: 5px;
             margin: 10px 0;
+        }
+
+        /* Modal de Confirmação de Exclusão */
+        .delete-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-modal.show {
+            display: flex;
+        }
+
+        .delete-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .delete-content h3 {
+            color: #dc3545;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .delete-content .candidate-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #dc3545;
+        }
+
+        .delete-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .bulk-actions {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .bulk-actions h4 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+
+        .bulk-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
         }
 
         @media (max-width: 768px) {
@@ -313,6 +425,16 @@
             .results-table td {
                 padding: 8px;
             }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .btn-view, .btn-danger {
+                font-size: 0.8em;
+                padding: 6px 10px;
+            }
         }
     </style>
 </head>
@@ -321,7 +443,7 @@
     <div id="loginModal" class="login-modal">
         <div class="login-content">
             <div class="version-info">
-                🚨 PAINEL ADMIN v3.0 - EMERGENCY FIX 🚨
+                🗑️ PAINEL ADMIN v3.5 - COM EXCLUSÃO 🗑️
             </div>
             <h2 id="loginTitle">Acesso Administrativo</h2>
             <p id="loginSubtitle">Digite sua senha para acessar o painel</p>
@@ -345,22 +467,59 @@
         </div>
     </div>
 
+    <!-- Modal de Confirmação de Exclusão -->
+    <div id="deleteModal" class="delete-modal">
+        <div class="delete-content">
+            <h3>⚠️ Confirmar Exclusão</h3>
+            <p>Tem certeza que deseja excluir este resultado?</p>
+            
+            <div class="candidate-info" id="deleteInfo">
+                <!-- Informações do candidato serão preenchidas aqui -->
+            </div>
+            
+            <p><strong>⚠️ ATENÇÃO:</strong> Esta ação não pode ser desfeita!</p>
+            
+            <div class="delete-actions">
+                <button class="btn btn-secondary" onclick="cancelDelete()">Cancelar</button>
+                <button class="btn btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">
+                    🗑️ Excluir Definitivamente
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Dashboard -->
     <div id="dashboard" class="dashboard">
         <button class="logout-btn" onclick="logout()">Sair</button>
         
         <div class="container">
             <div class="header">
-                <h1>Painel Administrativo v3.0</h1>
+                <h1>Painel Administrativo v3.5</h1>
                 <p>Gestão de Resultados de Avaliação de Liderança</p>
                 <div class="version-info">
-                    Sistema funcionando com Emergency Fix - Conexão Supabase ativa
+                    Sistema com funcionalidade de exclusão - Conexão Supabase ativa
                 </div>
             </div>
 
             <!-- Estatísticas -->
             <div class="stats-grid" id="statsGrid">
                 <!-- Estatísticas serão carregadas dinamicamente -->
+            </div>
+
+            <!-- Ações em Lote -->
+            <div class="bulk-actions">
+                <h4>🧹 Limpeza de Dados</h4>
+                <div class="bulk-buttons">
+                    <button class="btn btn-warning" onclick="deleteTestData()">
+                        🧪 Limpar Dados de Teste
+                    </button>
+                    <button class="btn btn-warning" onclick="deleteOldData()">
+                        📅 Excluir Registros Antigos (30+ dias)
+                    </button>
+                    <button class="btn btn-danger" onclick="confirmDeleteAll()">
+                        🗑️ EXCLUIR TODOS (Cuidado!)
+                    </button>
+                </div>
             </div>
 
             <!-- Seção de Busca -->
@@ -402,16 +561,17 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
     <script>
-        // === PAINEL ADMIN v3.0 EMERGENCY FIX ===
-        console.log('%c🚨 PAINEL ADMIN v3.0 EMERGENCY FIX CARREGADO! 🚨', 'background: red; color: white; font-size: 20px; padding: 10px; font-weight: bold;');
+        // === PAINEL ADMIN v3.5 - COM FUNCIONALIDADE DE EXCLUSÃO ===
+        console.log('%c🗑️ PAINEL ADMIN v3.5 - COM EXCLUSÃO CARREGADO! 🗑️', 'background: #28a745; color: white; font-size: 20px; padding: 10px; font-weight: bold;');
         
-        // CREDENCIAIS SUPABASE - MESMAS DO FORMULÁRIO
+        // CREDENCIAIS SUPABASE
         const SUPABASE_URL = 'https://oyzocircslqogsstsbki.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im95em9jaXJjc2xxb2dzc3RzYmtpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk1ODAzMTMsImV4cCI6MjA2NTE1NjMxM30.VipaRyKtxpdYLCYHoIdJZ96ADQI0cORGUu0pZgvTOGg';
         
         let supabase = null;
         let isFirstAccess = false;
         let allResults = [];
+        let itemToDelete = null; // Para armazenar o item que será excluído
 
         // Inicializar Supabase
         function initializeSupabase() {
@@ -462,8 +622,7 @@
                     return;
                 }
                 
-                // Definir senha (hash simples - em produção usar bcrypt ou similar)
-                const hashedPassword = btoa(password); // Base64 simples
+                const hashedPassword = btoa(password);
                 localStorage.setItem('admin_password_hash', hashedPassword);
                 localStorage.setItem('admin_password_set', 'true');
                 
@@ -474,7 +633,6 @@
                     loadDashboard();
                 }, 1500);
             } else {
-                // Verificar senha
                 const storedHash = localStorage.getItem('admin_password_hash');
                 const inputHash = btoa(password);
                 
@@ -501,6 +659,186 @@
             const successDiv = document.getElementById('successMessage');
             successDiv.textContent = message;
             successDiv.style.display = 'block';
+        }
+
+        // === FUNÇÕES DE EXCLUSÃO ===
+
+        function showDeleteConfirmation(result) {
+            console.log('%c🗑️ Preparando exclusão de:', 'color: red; font-weight: bold;', result);
+            
+            itemToDelete = result;
+            
+            const deleteInfo = document.getElementById('deleteInfo');
+            deleteInfo.innerHTML = `
+                <strong>Nome:</strong> ${result.candidate_name}<br>
+                <strong>CPF:</strong> ${formatCPF(result.candidate_cpf)}<br>
+                <strong>Vaga:</strong> ${result.job_position}<br>
+                <strong>Estilo:</strong> ${result.dominant_style}<br>
+                <strong>Data:</strong> ${formatDate(result.assessment_date)}
+            `;
+            
+            document.getElementById('deleteModal').classList.add('show');
+        }
+
+        function cancelDelete() {
+            document.getElementById('deleteModal').classList.remove('show');
+            itemToDelete = null;
+        }
+
+        async function confirmDelete() {
+            if (!itemToDelete) return;
+            
+            console.log('%c🗑️ EXECUTANDO EXCLUSÃO...', 'background: red; color: white; font-weight: bold; padding: 5px;');
+            
+            const confirmBtn = document.getElementById('confirmDeleteBtn');
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'Excluindo...';
+            
+            try {
+                const { error } = await supabase
+                    .from('leadership_assessments')
+                    .delete()
+                    .eq('id', itemToDelete.id);
+
+                if (error) throw error;
+
+                console.log('%c✅ ITEM EXCLUÍDO COM SUCESSO!', 'background: green; color: white; font-weight: bold; padding: 5px;');
+                
+                // Remover da lista local
+                allResults = allResults.filter(result => result.id !== itemToDelete.id);
+                
+                // Atualizar interface
+                await loadStatistics();
+                displayResults(allResults);
+                
+                cancelDelete();
+                
+                // Mostrar notificação de sucesso
+                showNotification('✅ Resultado excluído com sucesso!', 'success');
+                
+            } catch (error) {
+                console.error('%c❌ Erro ao excluir:', 'color: red; font-weight: bold;', error);
+                showNotification('❌ Erro ao excluir resultado.', 'error');
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = '🗑️ Excluir Definitivamente';
+            }
+        }
+
+        // Função para mostrar notificações
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `${type}-message`;
+            notification.textContent = message;
+            notification.style.position = 'fixed';
+            notification.style.top = '20px';
+            notification.style.right = '20px';
+            notification.style.zIndex = '3000';
+            notification.style.padding = '15px';
+            notification.style.borderRadius = '8px';
+            notification.style.fontWeight = 'bold';
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 3000);
+        }
+
+        // === AÇÕES EM LOTE ===
+
+        async function deleteTestData() {
+            if (!confirm('🧪 Tem certeza que deseja excluir todos os dados de teste?\n\nSerão excluídos registros com nomes como "Teste", "João", "Maria", etc.')) {
+                return;
+            }
+            
+            console.log('%c🧪 EXCLUINDO DADOS DE TESTE...', 'background: orange; color: white; font-weight: bold; padding: 5px;');
+            
+            try {
+                const testNames = ['teste', 'test', 'joão', 'joao', 'maria', 'jose', 'ana', 'carlos', 'admin'];
+                let deletedCount = 0;
+                
+                for (const testName of testNames) {
+                    const { data, error } = await supabase
+                        .from('leadership_assessments')
+                        .delete()
+                        .ilike('candidate_name', `%${testName}%`);
+
+                    if (error) {
+                        console.error('Erro ao excluir dados de teste:', error);
+                    } else {
+                        deletedCount++;
+                    }
+                }
+                
+                console.log('%c✅ DADOS DE TESTE EXCLUÍDOS!', 'background: green; color: white; font-weight: bold; padding: 5px;');
+                
+                await loadAllResults();
+                await loadStatistics();
+                displayResults(allResults);
+                
+                showNotification(`✅ ${deletedCount} grupos de dados de teste excluídos!`, 'success');
+                
+            } catch (error) {
+                console.error('Erro na exclusão em lote:', error);
+                showNotification('❌ Erro na exclusão em lote.', 'error');
+            }
+        }
+
+        async function deleteOldData() {
+            if (!confirm('📅 Tem certeza que deseja excluir registros com mais de 30 dias?\n\nEsta ação não pode ser desfeita!')) {
+                return;
+            }
+            
+            try {
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                
+                const { data, error } = await supabase
+                    .from('leadership_assessments')
+                    .delete()
+                    .lt('assessment_date', thirtyDaysAgo.toISOString());
+
+                if (error) throw error;
+                
+                await loadAllResults();
+                await loadStatistics();
+                displayResults(allResults);
+                
+                showNotification('✅ Registros antigos excluídos!', 'success');
+                
+            } catch (error) {
+                console.error('Erro ao excluir dados antigos:', error);
+                showNotification('❌ Erro ao excluir dados antigos.', 'error');
+            }
+        }
+
+        async function confirmDeleteAll() {
+            const confirmation = prompt('⚠️ ATENÇÃO! Esta ação irá excluir TODOS os resultados!\n\nDigite "EXCLUIR TUDO" para confirmar:');
+            
+            if (confirmation !== 'EXCLUIR TUDO') {
+                alert('Ação cancelada.');
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('leadership_assessments')
+                    .delete()
+                    .neq('id', 0); // Exclui todos os registros
+
+                if (error) throw error;
+                
+                allResults = [];
+                await loadStatistics();
+                displayResults(allResults);
+                
+                showNotification('🗑️ TODOS os registros foram excluídos!', 'success');
+                
+            } catch (error) {
+                console.error('Erro ao excluir todos os dados:', error);
+                showNotification('❌ Erro ao excluir todos os dados.', 'error');
+            }
         }
 
         // Carregar dashboard
@@ -677,9 +1015,14 @@
                             <td>${result['style_' + result.dominant_style.replace('.', '_')]}</td>
                             <td>${formatDate(result.assessment_date)}</td>
                             <td>
-                                <button class="btn btn-primary" onclick="viewDetails('${result.id}')">
-                                    Ver Detalhes
-                                </button>
+                                <div class="action-buttons">
+                                    <button class="btn btn-view" onclick="viewDetails('${result.id}')">
+                                        👁️ Ver
+                                    </button>
+                                    <button class="btn btn-danger" onclick="showDeleteConfirmation(${JSON.stringify(result).replace(/"/g, '&quot;')})">
+                                        🗑️ Excluir
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     `).join('')}
@@ -791,7 +1134,7 @@
 
         // Inicialização
         window.addEventListener('load', function() {
-            console.log('%c🚀 PAINEL ADMIN CARREGANDO...', 'color: blue; font-weight: bold;');
+            console.log('%c🚀 PAINEL ADMIN v3.5 CARREGANDO...', 'color: blue; font-weight: bold;');
             
             if (initializeSupabase()) {
                 checkFirstAccess();
